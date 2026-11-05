@@ -17,6 +17,15 @@ Phase status: none done yet. Agent appends one block per phase below.
   - Run `bash scripts/check.sh 1` (static verification and type checks all pass).
 - Known issues: None.
 
+## Phase 2 - DONE
+- What was built: Sol mascot component (`SolMascot.tsx`) with react-native-svg blob body, radial gradient, and 6 distinct expressions (happy, calm, concerned, thinking, sleepy, excited) via `MascotFacialFeatures.tsx`, breathing loop (scale 1.0 -> 1.04) and random blinking loop (3-6s) via react-native-reanimated, compact typing indicator (`TypingSol.tsx`), and interactive mascot showcase on `/dev-kit`.
+- How to test:
+  - In `app`: `npx expo start`, open `/dev-kit`, tap expression chips to switch facial expressions, and test "Pause/Resume Breathing".
+  - Run `bash scripts/check.sh 2` (static verify, server tsc, app tsc all pass).
+- Known issues: None.
+
+
+
 
 
 
