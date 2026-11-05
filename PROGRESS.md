@@ -51,6 +51,20 @@ Phase status: none done yet. Agent appends one block per phase below.
   - On device: Tap check-in card or face -> select mood face with haptics -> select emotion chips -> write note -> submit -> see Sol's speech bubble reaction and streak badge.
 - Known issues: None. Needs human phone check.
 
+## Phase 7 - DONE
+- What was built: Gemini AI chat backend (@google/genai), structured JSON schema (Sol response), safety system (Tele-MANAS 14416 / 112, suicide/crisis keywords in EN and Hinglish), context builder (recent moods, memories when consent enabled, rolling summaries), models (Conversation, Message, Memory), endpoints (/conversations, /conversations/:id/messages, /memories, PATCH /conversations/:id), chat CLI test script.
+- How to test: `bash scripts/check.sh 7` (static verify, type checks in app and server, and 26/26 live smoke tests pass).
+- Known issues: None.
+
+## Phase 8 - in progress
+- Plan: Build chat client with API client, conversation list (swipe-to-delete), active chat screen (inverted FlatList, typewriter reveal for new messages, TypingSol, ActivityCard, SupportCard with Tele-MANAS/112 links, Composer with haptics), and new conversation handler.
+- Files to create/edit: app/src/api/chat.ts, app/src/components/chat/MessageBubble.tsx, app/src/components/chat/ActivityCard.tsx, app/src/components/chat/SupportCard.tsx, app/src/components/chat/Composer.tsx, app/app/(tabs)/chat/index.tsx, app/app/chat/[id].tsx, app/app/chat/new.tsx.
+- Packages to install: None (react-native-gesture-handler already installed).
+- Verification: `cd app && npx tsc --noEmit` and `bash scripts/check.sh 8`.
+
+
+
+
 
 
 

@@ -7,6 +7,8 @@ import { authRouter } from "./routes/auth.js";
 import { meRouter } from "./routes/me.js";
 import { homeRouter } from "./routes/home.js";
 import { moodRouter } from "./routes/mood.js";
+import { chatRouter } from "./routes/chat.js";
+import { memoriesRouter } from "./routes/memories.js";
 import { errorHandler } from "./middleware/error.js";
 
 export const app = express();
@@ -24,5 +26,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/me", meRouter);
 app.use("/api/v1/home", homeRouter);
 app.use("/api/v1/moods", moodRouter);
+app.use("/api/v1/conversations", chatRouter);
+app.use("/api/v1/memories", memoriesRouter);
 
 app.use(errorHandler);
