@@ -5,6 +5,7 @@ import morgan from "morgan";
 import { env } from "./config/env.js";
 import { authRouter } from "./routes/auth.js";
 import { meRouter } from "./routes/me.js";
+import { homeRouter } from "./routes/home.js";
 import { errorHandler } from "./middleware/error.js";
 
 export const app = express();
@@ -20,5 +21,6 @@ app.get("/api/v1/health", (_req: Request, res: Response) => {
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/me", meRouter);
+app.use("/api/v1/home", homeRouter);
 
 app.use(errorHandler);

@@ -37,6 +37,15 @@ Phase status: none done yet. Agent appends one block per phase below.
   - On device: Launch app -> splash -> onboarding -> signup -> profile setup -> lands on Home.
 - Known issues: None. Needs human phone check for end-to-end device testing.
 
+## Phase 5 - DONE
+- What was built: `GET /api/v1/home` endpoint with time-of-day greeting, daily affirmation, tailored suggestion, streak, and quick action routes; 4-tab bar (`(tabs)/_layout.tsx`) with SVG tab icons; rich Home screen (`(tabs)/home.tsx`) with dynamic gradient header, Sol mascot mood reaction, streak flame pill, CheckinCard, AffirmationCard, SuggestionCard, quick action pills, skeleton loading state, pull-to-refresh with React Query, and stub tabs/checkin routes.
+- How to test:
+  - Run `bash scripts/check.sh 5` (static verify, type checks, and live smoke test of /health, /auth, /me, and /home all pass).
+  - In `app`: `npx expo start`, sign in, verify Home displays the header, 3 cards, quick actions, and pull-to-refresh.
+- Known issues: None.
+
+
+
 
 
 
