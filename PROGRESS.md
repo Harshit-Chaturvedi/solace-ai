@@ -30,6 +30,16 @@ Phase status: none done yet. Agent appends one block per phase below.
   - Run `bash scripts/check.sh 3` (executes static checks, type checks, and full live API smoke tests against MongoDB Atlas).
 - Known issues: None.
 
+## Phase 4 - DONE
+- What was built: API client (`client.ts`) with SecureStore JWT storage and `ApiError` class, auth endpoints wrapper (`auth.ts`), Zustand auth store with token hydration (`store/auth.ts`), QueryClientProvider in `_layout.tsx`, animated splash screen with auth redirect logic (`index.tsx`), 3-slide onboarding pager with dots and disclaimer (`(onboarding)/index.tsx`), signup and login screens with error banners (`(auth)/signup.tsx`, `(auth)/login.tsx`), 3-step profile setup (`(auth)/profile-setup.tsx`), and initial tab layout placeholder.
+- How to test:
+  - Run `bash scripts/check.sh 4` (static verify, server tsc, app tsc all pass).
+  - On device: Launch app -> splash -> onboarding -> signup -> profile setup -> lands on Home.
+- Known issues: None. Needs human phone check for end-to-end device testing.
+
+
+
+
 
 
 

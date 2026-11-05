@@ -1,27 +1,83 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
-import { Screen, Text, Button } from "../src/components/ui/index.js";
+import * as SecureStore from "expo-secure-store";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
+import { Screen, Text } from "../src/components/ui/index.js";
+import { SolMascot } from "../src/components/Sol/index.js";
 import { colors, spacing } from "../src/theme/index.js";
+import { useAuthStore } from "../src/store/auth.js";
 
-export default function Index() {
+export default function SplashScreen() {
   const router = useRouter();
+  const { status, user, hydrate } = useAuthStore();
+  const [minTimeElapsed, setMinTimeElapsed] = useState(false);
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
+
+  const opacity = useSharedValue(0);
+  const scale = useSharedValue(0.9);
+
+  useEffect(() => {
+    opacity.value = withTiming(1, { duration: 600 });
+    scale.value = withTiming(1, { duration: 600 });
+    hydrate();
+
+    SecureStore.getItemAsync("onboardingSeen")
+      .then((seen) => setHasSeenOnboarding(Boolean(seen)))
+      .catch(() => {});
+
+    const timer = setTimeout(() => {
+      setMinTimeElapsed(true);
+    }, 1600);
+
+    return () => clearTimeout(timer);
+  }, [hydrate, opacity, scale]);
+
+  useEffect(() => {
+    if (!minTimeElapsed || status === "loading") return;
+
+    if (status === "unauthenticated") {
+      if (hasSeenOnboarding) {
+        router.replace("/(auth)/login");
+      } else {
+        router.replace("/(onboarding)");
+      }
+    } else if (status === "authenticated") {
+      if (!user?.onboardingDone) {
+        router.replace("/(auth)/profile-setup");
+      } else {
+        router.replace("/(tabs)/home");
+      }
+    }
+  }, [minTimeElapsed, status, user, hasSeenOnboarding, router]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ scale: scale.value }],
+  }));
 
   return (
-    <Screen style={styles.container}>
-      <View style={styles.content}>
-        <Text variant="display" center style={styles.title}>
-          Solace
-        </Text>
-        <Text variant="body" color={colors.inkSoft} center style={styles.subtitle}>
-          A gentle place for your mind
-        </Text>
-        <Button
-          title="Open Dev Kit"
-          onPress={() => router.push("/dev-kit")}
-          style={styles.button}
-        />
-      </View>
+    <Screen gradient={colors.gradients.dawn} style={styles.container}>
+      <Animated.View style={[styles.content, animatedStyle]}>
+        <SolMascot size={120} expression="happy" breathing />
+        <View style={styles.textContainer}>
+          <Text variant="display" center style={styles.title}>
+            Solace
+          </Text>
+          <Text
+            variant="body"
+            color={colors.inkSoft}
+            center
+            style={styles.subtitle}
+          >
+            A gentle place for your mind
+          </Text>
+        </View>
+      </Animated.View>
     </Screen>
   );
 }
@@ -32,17 +88,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   content: {
-    width: "100%",
-    maxWidth: 320,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  textContainer: {
+    marginTop: spacing.xl,
     alignItems: "center",
   },
   title: {
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   subtitle: {
-    marginBottom: spacing.xxl,
-  },
-  button: {
-    width: "100%",
+    maxWidth: 240,
   },
 });
