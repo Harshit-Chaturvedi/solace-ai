@@ -9,6 +9,8 @@ import { homeRouter } from "./routes/home.js";
 import { moodRouter } from "./routes/mood.js";
 import { chatRouter } from "./routes/chat.js";
 import { memoriesRouter } from "./routes/memories.js";
+import { activitiesRouter } from "./routes/activities.js";
+import { affirmationsRouter } from "./routes/affirmations.js";
 import { errorHandler } from "./middleware/error.js";
 
 export const app = express();
@@ -28,5 +30,7 @@ app.use("/api/v1/home", homeRouter);
 app.use("/api/v1/moods", moodRouter);
 app.use("/api/v1/conversations", chatRouter);
 app.use("/api/v1/memories", memoriesRouter);
+app.use("/api/v1/activities", activitiesRouter);
+app.use("/api/v1/affirmations", affirmationsRouter);
 
 app.use(errorHandler);

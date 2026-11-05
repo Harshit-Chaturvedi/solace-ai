@@ -61,11 +61,20 @@ Phase status: none done yet. Agent appends one block per phase below.
 - How to test: `bash scripts/check.sh 8` (static verify, app/server tsc clean).
 - Known issues: None.
 
-## Phase 9 - in progress
-- Plan: Build Breathing & Affirmations features: server Activity model and `POST /activities` route (logs duration, type, meta), `GET /affirmations/today` route; client `app/app/breathe.tsx` (reads route params pattern/minutes, box/478/calm patterns, keep-awake, reanimated breathing visualizer, haptic transitions, POST /activities) and `app/app/affirmation.tsx` (today's affirmation, share sheet).
-- Files to create/edit: server/src/models/Activity.ts, server/src/routes/activities.ts, server/src/routes/affirmations.ts, server/src/app.ts, app/src/api/activities.ts, app/app/breathe.tsx, app/app/affirmation.tsx.
-- Packages to install: expo-keep-awake (installed).
-- Verification: `cd server && npx tsc --noEmit`, `cd app && npx tsc --noEmit`, and `bash scripts/check.sh 9`.
+## Phase 9 - DONE
+- What was built: Breathing & Affirmations features: server Activity model (`server/src/models/Activity.ts`), `POST /activities` route (calculating/returning streaks), `GET /affirmations/today` and `/recent` routes (`server/src/routes/affirmations.ts`); client `app/src/api/activities.ts`, `app/src/components/breathe/BreathingCircle.tsx` (Reanimated expanding circle with Sol), `app/app/breathe.tsx` (box, 478, and calm breathing patterns, useLocalSearchParams, useKeepAwake, haptics on step transitions, completion recording), `app/app/affirmation.tsx` (today's affirmation, share sheet, save to heart).
+- How to test: `bash scripts/check.sh 9` (static verify, app/server tsc clean, 28/28 live smoke tests pass).
+- Phone check: Test breathing pacing on phone, check keep-awake works, verify affirmation share sheet and saving.
+- Known issues: None.
+
+## Phase 10 - SKIPPED
+- Skipped per instructions (journal optional, skipped unless "journal on").
+
+## Phase 11 - in progress
+- Plan: Build local scheduled notifications, reminders system, and deep linking: install expo-notifications and configure plugin in app.json; create server Reminder model (`server/src/models/Reminder.ts`) and CRUD routes (`server/src/routes/reminders.ts` with 24-hr time validation); create client `app/src/lib/notifications.ts` (Android 'reminders' channel, foreground handler, syncReminders with cancelAllScheduledNotificationsAsync and scheduleNotificationAsync, data.url payload); wire cold-start and background tap listener in `app/app/_layout.tsx`; build `app/app/reminders.tsx`.
+- Files to create/edit: server/src/models/Reminder.ts, server/src/routes/reminders.ts, server/src/app.ts, app/src/lib/notifications.ts, app/src/api/reminders.ts, app/app/reminders.tsx, app/app/_layout.tsx, app/app.json.
+- Packages to install: expo-notifications.
+- Verification: `cd server && npx tsc --noEmit`, `cd app && npx tsc --noEmit`, and `bash scripts/check.sh 11`.
 
 
 
