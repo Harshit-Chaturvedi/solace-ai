@@ -1,22 +1,48 @@
-import { StyleSheet, Text, View } from "react-native";
+import React from "react";
+import { StyleSheet, View } from "react-native";
+import { useRouter } from "expo-router";
+import { Screen, Text, Button } from "../src/components/ui/index.js";
+import { colors, spacing } from "../src/theme/index.js";
 
 export default function Index() {
+  const router = useRouter();
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Solace AI</Text>
-    </View>
+    <Screen style={styles.container}>
+      <View style={styles.content}>
+        <Text variant="display" center style={styles.title}>
+          Solace
+        </Text>
+        <Text variant="body" color={colors.inkSoft} center style={styles.subtitle}>
+          A gentle place for your mind
+        </Text>
+        <Button
+          title="Open Dev Kit"
+          onPress={() => router.push("/dev-kit")}
+          style={styles.button}
+        />
+      </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FBF8F4",
   },
-  text: {
-    fontSize: 20,
-    color: "#2E2A47",
+  content: {
+    width: "100%",
+    maxWidth: 320,
+    alignItems: "center",
+  },
+  title: {
+    marginBottom: spacing.sm,
+  },
+  subtitle: {
+    marginBottom: spacing.xxl,
+  },
+  button: {
+    width: "100%",
   },
 });
