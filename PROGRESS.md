@@ -76,11 +76,16 @@ Phase status: none done yet. Agent appends one block per phase below.
 - Phone check: Tap reminder on physical device while app is killed to confirm cold-start deep link routing.
 - Known issues: None.
 
-## Phase 12 - in progress
-- Plan: Build Memories screen, simple 7-day insights, and Profile: create `server/src/routes/insights.ts` (`GET /insights?range=7|30` returning moodSeries and streak); build `app/app/memories.tsx` (view and delete individual or all memories with memoryEnabled consent toggle); build `app/app/(tabs)/insights.tsx` (SVG mood trend visualization and activity stats); build `app/app/(tabs)/profile.tsx` (companion tone, memoryEnabled toggle, Tele-MANAS 14416 emergency link, non-medical disclaimer, delete account with DELETE /me).
-- Files to create/edit: server/src/routes/insights.ts, server/src/app.ts, app/src/api/insights.ts, app/app/memories.tsx, app/app/(tabs)/insights.tsx, app/app/(tabs)/profile.tsx.
-- Packages to install: None.
-- Verification: `cd server && npx tsc --noEmit`, `cd app && npx tsc --noEmit`, and `bash scripts/check.sh 12`.
+## Phase 12 - DONE
+- What was built: Memories screen, 7-day insights, and Profile: created `server/src/routes/insights.ts` (`GET /insights?range=7|30`); created `app/src/api/insights.ts`, `app/src/api/memories.ts`, `app/app/memories.tsx` (view/delete individual memories, clear all, toggle memoryEnabled consent), `app/app/(tabs)/insights.tsx` (7-day SVG mood trend chart, current and longest streak, mindful minutes), `app/app/(tabs)/profile.tsx` (Sol tone customization, navigation to memories/reminders, Tele-MANAS 14416 emergency link, non-medical disclaimer, account deletion with DELETE /me, sign out).
+- How to test: `bash scripts/check.sh 12` (static verify, app/server tsc clean, 30/30 live smoke tests pass).
+- Known issues: None.
+
+## Phase 13 - in progress
+- Plan: Polish and cleanup: remove `app/app/dev-kit.tsx` and its route in `_layout.tsx`; verify zero `console.log` in `app/app` and `app/src`; verify no sensitive logging in server; install `@react-native-community/netinfo` and create offline banner component in `app/src/components/ui/OfflineBanner.tsx` wired into root layout; add accessibilityLabel props across interactive UI controls; confirm app icon in `app.json`.
+- Files to create/edit: app/app/dev-kit.tsx (delete), app/app/_layout.tsx, app/src/components/ui/OfflineBanner.tsx, app/src/components/ui/Button.tsx.
+- Packages to install: @react-native-community/netinfo.
+- Verification: `cd server && npx tsc --noEmit`, `cd app && npx tsc --noEmit`, and `bash scripts/check.sh 13`.
 
 
 

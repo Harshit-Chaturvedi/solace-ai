@@ -12,6 +12,7 @@ import { memoriesRouter } from "./routes/memories.js";
 import { activitiesRouter } from "./routes/activities.js";
 import { affirmationsRouter } from "./routes/affirmations.js";
 import { remindersRouter } from "./routes/reminders.js";
+import { insightsRouter } from "./routes/insights.js";
 import { errorHandler } from "./middleware/error.js";
 
 export const app = express();
@@ -34,5 +35,6 @@ app.use("/api/v1/memories", memoriesRouter);
 app.use("/api/v1/activities", activitiesRouter);
 app.use("/api/v1/affirmations", affirmationsRouter);
 app.use("/api/v1/reminders", remindersRouter);
+app.use("/api/v1/insights", insightsRouter);
 
 app.use(errorHandler);

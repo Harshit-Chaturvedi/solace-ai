@@ -59,3 +59,9 @@ export async function updateMe(
     body: JSON.stringify(updates),
   });
 }
+
+export async function deleteMe(): Promise<void> {
+  return apiClient<void>("/me", {
+    method: "DELETE",
+  });
+}
