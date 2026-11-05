@@ -24,6 +24,15 @@ Phase status: none done yet. Agent appends one block per phase below.
   - Run `bash scripts/check.sh 2` (static verify, server tsc, app tsc all pass).
 - Known issues: None.
 
+## Phase 3 - DONE
+- What was built: User Mongoose model (`User.ts`) with hidden `passwordHash`, Zod validation middleware (`validate.ts`), JWT Bearer auth middleware (`auth.ts`), unified error handler (`error.ts`), rate limiting (`rateLimit.ts`), `/auth/signup` and `/auth/login` (with bcrypt and 30-day JWT tokens), `/me` (GET profile, PATCH with field whitelisting, DELETE with full account and data wipeout), and `requests.http`.
+- How to test:
+  - Run `bash scripts/check.sh 3` (executes static checks, type checks, and full live API smoke tests against MongoDB Atlas).
+- Known issues: None.
+
+
+
+
 
 
 

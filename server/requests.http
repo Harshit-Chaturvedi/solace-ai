@@ -1,0 +1,47 @@
+### Solace AI - API Requests
+
+@baseUrl = http://localhost:4000/api/v1
+@token = your-jwt-token-here
+
+### Health Check
+GET {{baseUrl}}/health
+
+### 1. Sign Up
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "name": "Aisha",
+  "email": "aisha@example.com",
+  "password": "Password123!"
+}
+
+### 2. Log In
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "aisha@example.com",
+  "password": "Password123!"
+}
+
+### 3. Get Current User Profile
+GET {{baseUrl}}/me
+Authorization: Bearer {{token}}
+
+### 4. Update Current User Profile
+PATCH {{baseUrl}}/me
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Aisha Sharma",
+  "goals": ["reduce stress", "sleep better"],
+  "companionTone": "gentle",
+  "checkinTime": "08:30",
+  "onboardingDone": true
+}
+
+### 5. Delete Account
+DELETE {{baseUrl}}/me
+Authorization: Bearer {{token}}
