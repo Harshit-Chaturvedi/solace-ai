@@ -81,11 +81,16 @@ Phase status: none done yet. Agent appends one block per phase below.
 - How to test: `bash scripts/check.sh 12` (static verify, app/server tsc clean, 30/30 live smoke tests pass).
 - Known issues: None.
 
-## Phase 13 - in progress
-- Plan: Polish and cleanup: remove `app/app/dev-kit.tsx` and its route in `_layout.tsx`; verify zero `console.log` in `app/app` and `app/src`; verify no sensitive logging in server; install `@react-native-community/netinfo` and create offline banner component in `app/src/components/ui/OfflineBanner.tsx` wired into root layout; add accessibilityLabel props across interactive UI controls; confirm app icon in `app.json`.
-- Files to create/edit: app/app/dev-kit.tsx (delete), app/app/_layout.tsx, app/src/components/ui/OfflineBanner.tsx, app/src/components/ui/Button.tsx.
-- Packages to install: @react-native-community/netinfo.
-- Verification: `cd server && npx tsc --noEmit`, `cd app && npx tsc --noEmit`, and `bash scripts/check.sh 13`.
+## Phase 13 - DONE
+- What was built: Final polish and cleanups: removed temporary dev-kit route (`app/app/dev-kit.tsx`) and unmounted from `_layout.tsx`; verified zero `console.log` in app code and zero sensitive logging in server; added `accessibilityLabel` and `accessibilityRole` on interactive buttons; installed `@react-native-community/netinfo` and added `OfflineBanner` to `RootLayout`; verified EmptyState coverage and app icons.
+- How to test: `bash scripts/check.sh 13` (static verify passes, app/server tsc clean).
+- Known issues: None.
+
+## Phase 14 - in progress
+- Plan: Release and deploy configuration: create `app/eas.json` with preview profile configured for direct APK output (`buildType: "apk"`), https backend URL, and production release build profile; add cold-start "Waking Sol up" retry banner in app splash / API client; prepare instructions for Render deploy settings and EAS build.
+- Files to create/edit: app/eas.json, app/app/index.tsx.
+- Packages to install: None.
+- Verification: `bash scripts/check.sh 14`.
 
 
 

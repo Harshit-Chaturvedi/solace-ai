@@ -13,6 +13,7 @@ import {
   Nunito_600SemiBold,
   Nunito_700Bold,
 } from "@expo-google-fonts/nunito";
+import { OfflineBanner } from "../src/components/ui/OfflineBanner.js";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -81,13 +82,13 @@ export default function RootLayout(): React.JSX.Element | null {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <OfflineBanner />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="(onboarding)/index" />
         <Stack.Screen name="(auth)/login" />
         <Stack.Screen name="(auth)/signup" />
         <Stack.Screen name="(auth)/profile-setup" />
-        <Stack.Screen name="dev-kit" />
       </Stack>
     </QueryClientProvider>
   );

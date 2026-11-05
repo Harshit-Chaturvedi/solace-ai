@@ -25,6 +25,7 @@ export interface ButtonProps {
   loading?: boolean;
   disabled?: boolean;
   style?: ViewStyle;
+  accessibilityLabel?: string;
 }
 
 export function Button({
@@ -34,6 +35,7 @@ export function Button({
   loading = false,
   disabled = false,
   style,
+  accessibilityLabel,
 }: ButtonProps) {
   const scale = useSharedValue(1);
 
@@ -65,6 +67,8 @@ export function Button({
 
   return (
     <AnimatedPressable
+      accessibilityLabel={accessibilityLabel || title}
+      accessibilityRole="button"
       onPress={handlePress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
