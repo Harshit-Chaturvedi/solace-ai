@@ -44,6 +44,15 @@ Phase status: none done yet. Agent appends one block per phase below.
   - In `app`: `npx expo start`, sign in, verify Home displays the header, 3 cards, quick actions, and pull-to-refresh.
 - Known issues: None.
 
+## Phase 6 - DONE
+- What was built: Mood model (`Mood.ts`) with user indexing, timezone-aware streak calculator (`streak.ts`), POST /moods with empathetic Sol reaction reply and streak progression, GET /moods (7 and 30 day history), client API helper (`src/api/mood.ts`), and 3-step check-in flow with haptics (`checkin.tsx`) containing MoodSelector and CheckinSuccess components.
+- How to test:
+  - Run `bash scripts/check.sh 6` (static verify, type checks, and 16/16 live smoke tests pass).
+  - On device: Tap check-in card or face -> select mood face with haptics -> select emotion chips -> write note -> submit -> see Sol's speech bubble reaction and streak badge.
+- Known issues: None. Needs human phone check.
+
+
+
 
 
 
