@@ -70,11 +70,17 @@ Phase status: none done yet. Agent appends one block per phase below.
 ## Phase 10 - SKIPPED
 - Skipped per instructions (journal optional, skipped unless "journal on").
 
-## Phase 11 - in progress
-- Plan: Build local scheduled notifications, reminders system, and deep linking: install expo-notifications and configure plugin in app.json; create server Reminder model (`server/src/models/Reminder.ts`) and CRUD routes (`server/src/routes/reminders.ts` with 24-hr time validation); create client `app/src/lib/notifications.ts` (Android 'reminders' channel, foreground handler, syncReminders with cancelAllScheduledNotificationsAsync and scheduleNotificationAsync, data.url payload); wire cold-start and background tap listener in `app/app/_layout.tsx`; build `app/app/reminders.tsx`.
-- Files to create/edit: server/src/models/Reminder.ts, server/src/routes/reminders.ts, server/src/app.ts, app/src/lib/notifications.ts, app/src/api/reminders.ts, app/app/reminders.tsx, app/app/_layout.tsx, app/app.json.
-- Packages to install: expo-notifications.
-- Verification: `cd server && npx tsc --noEmit`, `cd app && npx tsc --noEmit`, and `bash scripts/check.sh 11`.
+## Phase 11 - DONE
+- What was built: Notifications, reminders system, and deep linking: installed `expo-notifications` and configured plugin in `app/app.json`; created server Reminder model (`server/src/models/Reminder.ts`) and CRUD endpoints (`server/src/routes/reminders.ts` with 24-hr time validation); created `app/src/lib/notifications.ts` with Android 'reminders' channel setup, `syncReminders` with `cancelAllScheduledNotificationsAsync` and `scheduleNotificationAsync` with `data.url`; wired foreground notification handler and cold-start/background tap listener in `app/app/_layout.tsx`; created `app/app/reminders.tsx` and `app/src/components/reminders/ReminderCard.tsx`.
+- How to test: `bash scripts/check.sh 11` (static verify, app/server tsc clean, 29/29 live smoke tests pass).
+- Phone check: Tap reminder on physical device while app is killed to confirm cold-start deep link routing.
+- Known issues: None.
+
+## Phase 12 - in progress
+- Plan: Build Memories screen, simple 7-day insights, and Profile: create `server/src/routes/insights.ts` (`GET /insights?range=7|30` returning moodSeries and streak); build `app/app/memories.tsx` (view and delete individual or all memories with memoryEnabled consent toggle); build `app/app/(tabs)/insights.tsx` (SVG mood trend visualization and activity stats); build `app/app/(tabs)/profile.tsx` (companion tone, memoryEnabled toggle, Tele-MANAS 14416 emergency link, non-medical disclaimer, delete account with DELETE /me).
+- Files to create/edit: server/src/routes/insights.ts, server/src/app.ts, app/src/api/insights.ts, app/app/memories.tsx, app/app/(tabs)/insights.tsx, app/app/(tabs)/profile.tsx.
+- Packages to install: None.
+- Verification: `cd server && npx tsc --noEmit`, `cd app && npx tsc --noEmit`, and `bash scripts/check.sh 12`.
 
 
 
