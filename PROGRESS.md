@@ -86,11 +86,10 @@ Phase status: none done yet. Agent appends one block per phase below.
 - How to test: `bash scripts/check.sh 13` (static verify passes, app/server tsc clean).
 - Known issues: None.
 
-## Phase 14 - in progress
-- Plan: Release and deploy configuration: create `app/eas.json` with preview profile configured for direct APK output (`buildType: "apk"`), https backend URL, and production release build profile; add cold-start "Waking Sol up" retry banner in app splash / API client; prepare instructions for Render deploy settings and EAS build.
-- Files to create/edit: app/eas.json, app/app/index.tsx.
-- Packages to install: None.
-- Verification: `bash scripts/check.sh 14`.
+## Phase 14 - DONE
+- What was built: Release and deployment setup: created `app/eas.json` with preview build configured for direct Android APK artifact (`buildType: "apk"`), internal distribution, and production/preview HTTPS backend API configuration; added cold-start "Waking Sol up..." status to `app/app/index.tsx`; documented Render backend deployment settings and EAS APK build commands.
+- How to test: `bash scripts/check.sh 14` (static checks pass, app/server tsc clean).
+- Known issues: Manual steps (Render deployment, EAS build execution, physical phone test, demo recording).
 
 
 

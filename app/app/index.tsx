@@ -76,6 +76,16 @@ export default function SplashScreen() {
           >
             A gentle place for your mind
           </Text>
+          {status === "loading" ? (
+            <Text
+              variant="caption"
+              color={colors.primary}
+              center
+              style={styles.wakingText}
+            >
+              Waking Sol up...
+            </Text>
+          ) : null}
         </View>
       </Animated.View>
     </Screen>
@@ -99,6 +109,10 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   subtitle: {
+    marginBottom: spacing.xs,
     maxWidth: 240,
+  },
+  wakingText: {
+    marginTop: spacing.xs,
   },
 });
