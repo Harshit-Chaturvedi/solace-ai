@@ -56,11 +56,16 @@ Phase status: none done yet. Agent appends one block per phase below.
 - How to test: `bash scripts/check.sh 7` (static verify, type checks in app and server, and 26/26 live smoke tests pass).
 - Known issues: None.
 
-## Phase 8 - in progress
-- Plan: Build chat client with API client, conversation list (swipe-to-delete), active chat screen (inverted FlatList, typewriter reveal for new messages, TypingSol, ActivityCard, SupportCard with Tele-MANAS/112 links, Composer with haptics), and new conversation handler.
-- Files to create/edit: app/src/api/chat.ts, app/src/components/chat/MessageBubble.tsx, app/src/components/chat/ActivityCard.tsx, app/src/components/chat/SupportCard.tsx, app/src/components/chat/Composer.tsx, app/app/(tabs)/chat/index.tsx, app/app/chat/[id].tsx, app/app/chat/new.tsx.
-- Packages to install: None (react-native-gesture-handler already installed).
-- Verification: `cd app && npx tsc --noEmit` and `bash scripts/check.sh 8`.
+## Phase 8 - DONE
+- What was built: Chat client screens and components: `app/src/api/chat.ts` (apiClient calls for conversations and messages), `MessageBubble` with typewriter animation on new assistant messages, `SupportCard` with 14416 / 112 emergency calling, `ActivityCard` deep linking into breathing/affirmations, `Composer` with multiline input and send button, `ChatHeader` with Sol avatar and chat actions, `app/app/(tabs)/chat/index.tsx` with ReanimatedSwipeable delete, `app/app/chat/[id].tsx` with inverted FlatList and optimistic message delivery, and `app/app/chat/new.tsx`.
+- How to test: `bash scripts/check.sh 8` (static verify, app/server tsc clean).
+- Known issues: None.
+
+## Phase 9 - in progress
+- Plan: Build Breathing & Affirmations features: server Activity model and `POST /activities` route (logs duration, type, meta), `GET /affirmations/today` route; client `app/app/breathe.tsx` (reads route params pattern/minutes, box/478/calm patterns, keep-awake, reanimated breathing visualizer, haptic transitions, POST /activities) and `app/app/affirmation.tsx` (today's affirmation, share sheet).
+- Files to create/edit: server/src/models/Activity.ts, server/src/routes/activities.ts, server/src/routes/affirmations.ts, server/src/app.ts, app/src/api/activities.ts, app/app/breathe.tsx, app/app/affirmation.tsx.
+- Packages to install: expo-keep-awake (installed).
+- Verification: `cd server && npx tsc --noEmit`, `cd app && npx tsc --noEmit`, and `bash scripts/check.sh 9`.
 
 
 
