@@ -14,6 +14,8 @@ import {
   Nunito_700Bold,
 } from "@expo-google-fonts/nunito";
 import { OfflineBanner } from "../src/components/ui/OfflineBanner.js";
+import { getReminders } from "../src/api/reminders.js";
+import { syncReminders } from "../src/lib/notifications.js";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -53,6 +55,12 @@ export default function RootLayout(): React.JSX.Element | null {
   }, [fontsLoaded, fontError]);
 
   useEffect(() => {
+    getReminders().then((rems) => {
+      if (rems && rems.length > 0) {
+        syncReminders(rems);
+      }
+    }).catch(() => {});
+
     // Handle cold start from killed app
     Notifications.getLastNotificationResponseAsync().then((response) => {
       const url = response?.notification?.request?.content?.data?.url;

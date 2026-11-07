@@ -2,18 +2,12 @@ import { Router, type Request, type Response } from "express";
 import mongoose from "mongoose";
 import { requireAuth } from "../middleware/auth.js";
 import { User } from "../models/User.js";
+import { formatLocalDate } from "../services/streak.js";
+import { getDailyAffirmation } from "./affirmations.js";
 
 export const homeRouter = Router();
 
 homeRouter.use(requireAuth);
-
-const affirmations = [
-  "I give myself permission to slow down and take things one breath at a time.",
-  "I am doing the best I can today, and that is more than enough.",
-  "Peace begins with a conscious breath and a kind thought towards myself.",
-  "My feelings are valid, and I hold space for myself with warmth and patience.",
-  "I choose calm over hurry, and trust my own journey.",
-];
 
 homeRouter.get("/", async (req: Request, res: Response): Promise<void> => {
   const user = await User.findById(req.userId);
@@ -24,7 +18,17 @@ homeRouter.get("/", async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  const hour = new Date().getHours();
+  const userTz = user.timezone || "Asia/Kolkata";
+  const now = new Date();
+
+  // Compute timezone-accurate local hour for greeting
+  const hourFormatter = new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    hour12: false,
+    timeZone: userTz,
+  });
+  const hour = parseInt(hourFormatter.format(now), 10);
+
   let timeOfDay = "day";
   if (hour >= 5 && hour < 12) timeOfDay = "morning";
   else if (hour >= 12 && hour < 17) timeOfDay = "afternoon";
@@ -32,36 +36,38 @@ homeRouter.get("/", async (req: Request, res: Response): Promise<void> => {
 
   const greeting = `Good ${timeOfDay}, ${user.name}`;
 
-  // Find today's mood check-in if one exists
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-
+  // Find today's mood check-in in user's timezone
+  const todayDateStr = formatLocalDate(now, userTz);
   let todayMood = null;
   try {
     const moodsCol = mongoose.connection.collection("moods");
-    const doc = await moodsCol.findOne({
-      userId: new mongoose.Types.ObjectId(req.userId),
-      createdAt: { $gte: todayStart },
-    });
-    if (doc) {
+    const recentMoods = await moodsCol
+      .find({
+        userId: new mongoose.Types.ObjectId(req.userId),
+        createdAt: { $gte: new Date(now.getTime() - 36 * 60 * 60 * 1000) },
+      })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    const matchingMood = recentMoods.find(
+      (m) => formatLocalDate(m.createdAt, userTz) === todayDateStr,
+    );
+
+    if (matchingMood) {
       todayMood = {
-        mood: doc.mood,
-        score: doc.score,
-        emotions: doc.emotions || [],
-        note: doc.note,
-        solReply: doc.solReply,
+        mood: matchingMood.mood,
+        score: matchingMood.score,
+        emotions: matchingMood.emotions || [],
+        note: matchingMood.note,
+        solReply: matchingMood.solReply,
       };
     }
   } catch {
-    // If collection not yet populated
+    // If collection not accessible or empty
   }
 
-  // Affirmation of the day (stable for the day)
-  const dayOfYear = Math.floor(
-    (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) /
-      (1000 * 60 * 60 * 24),
-  );
-  const affirmation = affirmations[dayOfYear % affirmations.length];
+  // Affirmation of the day from single unified source
+  const affirmation = getDailyAffirmation(userTz).text;
 
   // Tailored suggestion
   interface Suggestion {

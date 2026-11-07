@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, StyleSheet, FlatList, TouchableOpacity, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -7,6 +7,7 @@ import { Screen } from "../src/components/ui/Screen.js";
 import { Text } from "../src/components/ui/Text.js";
 import { EmptyState } from "../src/components/ui/EmptyState.js";
 import { ReminderCard } from "../src/components/reminders/ReminderCard.js";
+import { CustomReminderModal } from "../src/components/reminders/CustomReminderModal.js";
 import {
   getReminders,
   updateReminder,
@@ -43,6 +44,7 @@ const PRESET_REMINDERS = [
 export default function RemindersScreen(): React.JSX.Element {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const [isCustomOpen, setIsCustomOpen] = useState(false);
 
   const { data: reminders = [], isLoading } = useQuery({
     queryKey: ["reminders"],
@@ -98,6 +100,19 @@ export default function RemindersScreen(): React.JSX.Element {
     addPresetMutation.mutate({ ...preset, enabled: true });
   };
 
+  const handleSaveCustom = async (data: { title: string; time: string; body: string }) => {
+    setIsCustomOpen(false);
+    const granted = await requestNotificationPermissions();
+    if (!granted) {
+      Alert.alert(
+        "Notifications Disabled",
+        "Please enable notifications in your phone settings to receive gentle reminders."
+      );
+      return;
+    }
+    addPresetMutation.mutate({ ...data, type: "checkin", enabled: true });
+  };
+
   return (
     <Screen style={styles.screen}>
       <View style={styles.header}>
@@ -119,7 +134,15 @@ export default function RemindersScreen(): React.JSX.Element {
         <Text variant="h3" color={colors.ink}>
           Reminders
         </Text>
-        <View style={styles.backBtn} />
+        <TouchableOpacity
+          onPress={() => setIsCustomOpen(true)}
+          style={styles.backBtn}
+          activeOpacity={0.7}
+        >
+          <Text variant="bodyBold" color={colors.primary}>
+            + Add
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {reminders.length === 0 && !isLoading ? (
@@ -169,6 +192,11 @@ export default function RemindersScreen(): React.JSX.Element {
           </TouchableOpacity>
         ))}
       </View>
+      <CustomReminderModal
+        visible={isCustomOpen}
+        onClose={() => setIsCustomOpen(false)}
+        onSave={handleSaveCustom}
+      />
     </Screen>
   );
 }

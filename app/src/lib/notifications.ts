@@ -64,19 +64,39 @@ export async function syncReminders(reminders: ReminderSyncItem[]): Promise<void
 
     const url = getUrlForType(reminder.type);
 
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: reminder.title,
-        body: reminder.body,
-        data: { url },
-        sound: true,
-      },
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.DAILY,
-        hour,
-        minute,
-        channelId: 'reminders',
-      },
-    });
+    if (reminder.days && reminder.days.length > 0 && reminder.days.length < 7) {
+      for (const day of reminder.days) {
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: reminder.title,
+            body: reminder.body,
+            data: { url },
+            sound: true,
+          },
+          trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
+            weekday: day + 1,
+            hour,
+            minute,
+            channelId: 'reminders',
+          },
+        });
+      }
+    } else {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: reminder.title,
+          body: reminder.body,
+          data: { url },
+          sound: true,
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DAILY,
+          hour,
+          minute,
+          channelId: 'reminders',
+        },
+      });
+    }
   }
 }
