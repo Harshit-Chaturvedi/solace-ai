@@ -14,25 +14,33 @@ export interface ReminderSyncItem {
 
 export async function setupNotificationChannel(): Promise<void> {
   if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('reminders', {
-      name: 'Gentle reminders',
-      importance: Notifications.AndroidImportance.HIGH,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: colors.primary,
-    });
+    try {
+      await Notifications.setNotificationChannelAsync('reminders', {
+        name: 'Gentle reminders',
+        importance: Notifications.AndroidImportance.HIGH,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: colors.primary,
+      });
+    } catch {
+      // Non-blocking in Expo Go environment
+    }
   }
 }
 
 export async function requestNotificationPermissions(): Promise<boolean> {
-  const { status: existingStatus } = await Notifications.getPermissionsAsync();
-  let finalStatus = existingStatus;
+  try {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
 
-  if (existingStatus !== 'granted') {
-    const { status } = await Notifications.requestPermissionsAsync();
-    finalStatus = status;
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    return finalStatus === 'granted';
+  } catch {
+    return false;
   }
-
-  return finalStatus === 'granted';
 }
 
 function getUrlForType(type?: string): string {
@@ -50,8 +58,12 @@ function getUrlForType(type?: string): string {
 }
 
 export async function syncReminders(reminders: ReminderSyncItem[]): Promise<void> {
-  await setupNotificationChannel();
-  await Notifications.cancelAllScheduledNotificationsAsync();
+  try {
+    await setupNotificationChannel();
+    await Notifications.cancelAllScheduledNotificationsAsync();
+  } catch {
+    // Non-blocking
+  }
 
   for (const reminder of reminders) {
     if (!reminder.enabled) continue;
@@ -64,8 +76,26 @@ export async function syncReminders(reminders: ReminderSyncItem[]): Promise<void
 
     const url = getUrlForType(reminder.type);
 
-    if (reminder.days && reminder.days.length > 0 && reminder.days.length < 7) {
-      for (const day of reminder.days) {
+    try {
+      if (reminder.days && reminder.days.length > 0 && reminder.days.length < 7) {
+        for (const day of reminder.days) {
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              title: reminder.title,
+              body: reminder.body,
+              data: { url },
+              sound: true,
+            },
+            trigger: {
+              type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
+              weekday: day + 1,
+              hour,
+              minute,
+              channelId: 'reminders',
+            },
+          });
+        }
+      } else {
         await Notifications.scheduleNotificationAsync({
           content: {
             title: reminder.title,
@@ -74,29 +104,15 @@ export async function syncReminders(reminders: ReminderSyncItem[]): Promise<void
             sound: true,
           },
           trigger: {
-            type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
-            weekday: day + 1,
+            type: Notifications.SchedulableTriggerInputTypes.DAILY,
             hour,
             minute,
             channelId: 'reminders',
           },
         });
       }
-    } else {
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: reminder.title,
-          body: reminder.body,
-          data: { url },
-          sound: true,
-        },
-        trigger: {
-          type: Notifications.SchedulableTriggerInputTypes.DAILY,
-          hour,
-          minute,
-          channelId: 'reminders',
-        },
-      });
+    } catch {
+      // Non-blocking in Expo Go environment
     }
   }
 }
