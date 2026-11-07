@@ -23,9 +23,9 @@ import { colors, spacing, radius } from "../src/theme/index.js";
 import { haptics } from "../src/lib/haptics.js";
 
 const PRESET_REMINDERS = [
-  { type: "checkin" as const, title: "Morning check-in", body: "How is your heart today? Sol is here whenever you need.", time: "09:00" },
-  { type: "breathe" as const, title: "Midday pause", body: "Take 2 minutes to breathe and reset.", time: "14:00" },
-  { type: "affirmation" as const, title: "Evening reflection", body: "A gentle thought before you rest.", time: "21:00" },
+  { type: "checkin" as const, title: "Hi, it's Sol", body: "How's your heart today? Take a minute to check in.", time: "09:00" },
+  { type: "breathe" as const, title: "Pause with me", body: "One minute of slow breathing?", time: "14:00" },
+  { type: "affirmation" as const, title: "A little something for you", body: "Your affirmation for today is ready.", time: "21:00" },
 ];
 
 export default function RemindersScreen(): React.JSX.Element {
@@ -109,8 +109,9 @@ export default function RemindersScreen(): React.JSX.Element {
     await setupNotificationChannel();
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: "Solace Check-in",
-        body: "Take a gentle pause with Sol.",
+        title: "Hi, it's Sol",
+        body: "How's your heart today? Take a minute to check in.",
+        color: colors.primary,
         data: { url: "/checkin" },
         sound: true,
       },
@@ -118,7 +119,7 @@ export default function RemindersScreen(): React.JSX.Element {
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
         seconds: 5,
         repeats: false,
-        channelId: "reminders",
+        channelId: "checkin",
       },
     });
     haptics.success();
