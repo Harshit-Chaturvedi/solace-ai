@@ -58,10 +58,25 @@ export async function apiClient<T>(
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   const url = `${BASE_URL.replace(/\/$/, "")}${normalizedPath}`;
 
-  const res = await fetch(url, {
-    ...options,
-    headers,
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 20000);
+
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      ...options,
+      headers,
+      signal: options.signal || controller.signal,
+    });
+  } catch (err: unknown) {
+    clearTimeout(timeoutId);
+    if ((err as Error)?.name === "AbortError") {
+      throw new ApiError("TIMEOUT", "Request timed out. Please check your connection.", 408);
+    }
+    throw new ApiError("NETWORK_ERROR", (err as Error)?.message || "Network request failed", 0);
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (res.status === 204) {
     return {} as T;

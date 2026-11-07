@@ -12,6 +12,7 @@
     },
     "android": {
       "package": "com.solace.ai",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#FBF8F4",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -40,7 +41,13 @@
         }
       ],
       "expo-secure-store",
-      "expo-notifications"
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#7C6FD6"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

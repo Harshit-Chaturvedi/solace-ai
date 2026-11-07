@@ -82,6 +82,11 @@ await test("send message and verify role field", async () => {
     content: "I am feeling overwhelmed with my presentation tomorrow.",
   });
   truthy(r.status === 200 || r.status === 201, "status");
+  const replyContent = r.json?.assistantMessage?.content || "";
+  truthy(
+    !replyContent.includes("I'm here with you right now"),
+    `Sol reply should be AI generated, not canned fallback: "${replyContent}"`
+  );
 
   const list = await api("GET", `/conversations/${convId}/messages`);
   eq(list.status, 200, "messages status");
@@ -139,12 +144,15 @@ await test("true crisis phrases are flagged", async () => {
 // 8. 6 user turns -> memories extracted
 await test("after 6+ user turns GET /memories is non-empty", async () => {
   // We already sent 5 turns. Let's send 2 more meaningful turns to ensure >= 6 turns.
-  await api("POST", `/conversations/${convId}/messages`, {
+  const m1 = await api("POST", `/conversations/${convId}/messages`, {
     content: "I work as a senior backend software engineer in Bangalore.",
   });
-  await api("POST", `/conversations/${convId}/messages`, {
+  const m2 = await api("POST", `/conversations/${convId}/messages`, {
     content: "My dog Bruno always helps me calm down when I am stressed.",
   });
+  const c1 = m1.json?.assistantMessage?.content || "";
+  const c2 = m2.json?.assistantMessage?.content || "";
+  truthy(!c1.includes("I'm here with you right now") && !c2.includes("I'm here with you right now"), "turns should not use canned fallback");
 
   // Poll GET /memories every 3s for up to 30s as extraction runs in the background
   let mems = [];

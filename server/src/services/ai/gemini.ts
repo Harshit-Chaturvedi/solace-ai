@@ -54,3 +54,39 @@ export async function generateJSON<T>(opts: {
     clearTimeout(timeout);
   }
 }
+
+let cachedAiStatus: "ok" | "failing" | null = null;
+let lastAiCheck = 0;
+
+export async function checkAiHealth(): Promise<"ok" | "failing"> {
+  const now = Date.now();
+  if (cachedAiStatus && now - lastAiCheck < 60_000) {
+    return cachedAiStatus;
+  }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 3000);
+
+  try {
+    const res = await Promise.race([
+      ai.models.generateContent({
+        model: env.GEMINI_MODEL,
+        contents: "hi",
+        config: { abortSignal: controller.signal },
+      }),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("Timeout")), 3000)
+      ),
+    ]);
+    if (res) {
+      cachedAiStatus = "ok";
+    }
+  } catch {
+    cachedAiStatus = "failing";
+  } finally {
+    clearTimeout(timer);
+    lastAiCheck = Date.now();
+  }
+
+  return cachedAiStatus || "failing";
+}

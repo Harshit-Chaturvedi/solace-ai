@@ -5,6 +5,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import { env } from "./config/env.js";
+import { checkAiHealth } from "./services/ai/gemini.js";
 import { authRouter } from "./routes/auth.js";
 import { meRouter } from "./routes/me.js";
 import { homeRouter } from "./routes/home.js";
@@ -24,13 +25,18 @@ app.use(cors(env.CORS_ORIGIN ? { origin: env.CORS_ORIGIN } : undefined));
 app.use(express.json());
 app.use(morgan("dev"));
 
-app.get("/api/v1/health", (_req: Request, res: Response) => {
+const healthHandler = async (_req: Request, res: Response) => {
   const isDbConnected = mongoose.connection.readyState === 1;
+  const aiStatus = await checkAiHealth();
   res.json({
     ok: true,
     db: isDbConnected ? "connected" : "disconnected",
+    ai: aiStatus,
   });
-});
+};
+
+app.get("/health", healthHandler);
+app.get("/api/v1/health", healthHandler);
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/me", meRouter);
