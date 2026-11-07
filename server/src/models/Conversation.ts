@@ -4,6 +4,7 @@ export interface IConversation extends Document {
   userId: mongoose.Types.ObjectId;
   title: string;
   lastMessageAt: Date;
+  lastMessageText?: string;
   summary?: string;
   detectedMood?: string;
   messageCount: number;
@@ -27,6 +28,9 @@ const conversationSchema = new Schema<IConversation>(
     lastMessageAt: {
       type: Date,
       default: Date.now,
+    },
+    lastMessageText: {
+      type: String,
     },
     summary: {
       type: String,

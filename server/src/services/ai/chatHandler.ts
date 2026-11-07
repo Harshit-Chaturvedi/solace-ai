@@ -1,10 +1,12 @@
 import mongoose from "mongoose";
-import { type IConversation } from "../../models/Conversation.js";
+import { Conversation, type IConversation } from "../../models/Conversation.js";
 import { Message, type IMessage } from "../../models/Message.js";
 import { type IUser } from "../../models/User.js";
+import { Mood, moodScoreMap } from "../../models/Mood.js";
 import { checkCrisis } from "./safety.js";
 import { buildChatContext } from "./contextBuilder.js";
 import { generateJSON } from "./gemini.js";
+import { extractAndSaveMemories } from "./memoryExtractor.js";
 import { SOL_RESPONSE_SCHEMA, type SolChatResponse } from "./prompts.js";
 
 export interface ProcessMessageResult {
@@ -42,13 +44,14 @@ export async function processUserMessage(opts: {
     });
 
     conversation.lastMessageAt = new Date();
+    conversation.lastMessageText = assistantMessage.content;
     conversation.messageCount += 2;
     await conversation.save();
 
     return { userMessage, assistantMessage, conversation };
   }
 
-  // 2. Normal AI chat flow
+  // 2. Normal AI chat flow - save user turn
   const userMessage = await Message.create({
     conversationId: convId,
     userId,
@@ -57,13 +60,13 @@ export async function processUserMessage(opts: {
   });
 
   let replyText =
-    "I'm listening. Can you tell me a little bit more about how that feels?";
+    "I'm listening. Can you tell me a little bit more about what's on your mind?";
   let userMood = null;
   let suggestion = null;
+  let isFlaggedCrisis = false;
 
   try {
     const context = await buildChatContext(user, conversation);
-    context.history.push({ role: "user", text: content });
 
     const aiResult = await generateJSON<SolChatResponse>({
       system: context.systemPrompt,
@@ -75,18 +78,14 @@ export async function processUserMessage(opts: {
       replyText = aiResult.reply;
       userMood = aiResult.userMood || null;
       suggestion = aiResult.suggestion || null;
+      if (aiResult.safety) {
+        isFlaggedCrisis = true;
+      }
     }
   } catch {
-    if (
-      content.toLowerCase().includes("anxious") ||
-      content.toLowerCase().includes("presentation")
-    ) {
-      suggestion = {
-        type: "breathing",
-        title: "2-min box breathing",
-        params: { pattern: "box", minutes: 2 },
-      };
-    }
+    // Generic fallback reply without hardcoded symptoms
+    replyText =
+      "I'm here with you right now. Take your time, whenever you feel ready to share more.";
   }
 
   const assistantMessage = await Message.create({
@@ -96,11 +95,82 @@ export async function processUserMessage(opts: {
     content: replyText,
     mood: userMood,
     suggestion,
+    flagged: isFlaggedCrisis ? "crisis" : null,
   });
 
+  // Log mood to insights if AI detected user mood
+  if (userMood && moodScoreMap[userMood]) {
+    Mood.create({
+      userId,
+      mood: userMood,
+      score: moodScoreMap[userMood],
+      source: "chat",
+      note: `Chat with Sol: ${conversation.title}`,
+      solReply: replyText,
+    }).catch((err) => {
+      console.warn("Mood log error:", (err as Error)?.message);
+    });
+  }
+
+  // 3. Update conversation state
   conversation.lastMessageAt = new Date();
+  conversation.lastMessageText = assistantMessage.content;
   conversation.messageCount += 2;
+
+  // Title generation on first turn if still default
+  if (
+    conversation.title === "New Conversation" ||
+    conversation.messageCount <= 2
+  ) {
+    const fallbackTitle =
+      content.length > 40 ? `${content.slice(0, 37)}...` : content;
+    conversation.title = fallbackTitle;
+
+    // Asynchronously generate concise 3-5 word title with Gemini
+    generateJSON<{ title: string }>({
+      system:
+        "Generate a gentle 3-5 word title summarizing this message for a wellness chat. Return JSON with 'title'.",
+      history: [{ role: "user", text: content }],
+      schema: {
+        type: "object",
+        properties: { title: { type: "string" } },
+        required: ["title"],
+      },
+    })
+      .then(async (res) => {
+        if (res.title) {
+          await Conversation.findByIdAndUpdate(convId, {
+            title: res.title.trim().replace(/^["']|["']$/g, ""),
+          });
+        }
+      })
+      .catch(() => {});
+  }
+
   await conversation.save();
+
+  // 4. Memory extraction non-awaited, only when memoryEnabled, every 3rd user turn
+  const userTurnCount = Math.floor(conversation.messageCount / 2);
+  if (user.memoryEnabled && userTurnCount % 3 === 0) {
+    Message.find({ conversationId: convId })
+      .sort({ createdAt: -1 })
+      .limit(6)
+      .lean()
+      .then((msgs) => {
+        const chronological = msgs.reverse().map((m) => ({
+          role: m.role,
+          content: m.content,
+        }));
+        return extractAndSaveMemories({
+          userId,
+          conversationId: convId,
+          messages: chronological,
+        });
+      })
+      .catch((err) => {
+        console.warn("Memory extraction warning:", (err as Error)?.message);
+      });
+  }
 
   return { userMessage, assistantMessage, conversation };
 }

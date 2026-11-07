@@ -17,7 +17,7 @@ const postMoodSchema = z.object({
   note: z.string().trim().optional(),
 });
 
-function getWarmSolReply(mood: MoodType, emotions: string[], note?: string): string {
+function getWarmSolReply(mood: MoodType): string {
   if (mood === "great") {
     return "It's wonderful to see your light shining so brightly today! Let that positive energy carry you forward.";
   }
@@ -28,9 +28,6 @@ function getWarmSolReply(mood: MoodType, emotions: string[], note?: string): str
     return "Being okay is more than enough. You're doing just fine, one moment at a time.";
   }
   if (mood === "low") {
-    if (emotions.includes("anxious") || note?.toLowerCase().includes("presentation")) {
-      return "I hear you, and it's completely natural to feel nervous. Take a deep breath; you are capable of handling this.";
-    }
     return "I'm holding space for you today. Be extra gentle with yourself, you don't have to carry everything at once.";
   }
   // awful
@@ -50,7 +47,7 @@ moodRouter.post(
       return;
     }
 
-    const solReply = getWarmSolReply(mood as MoodType, emotions, note);
+    const solReply = getWarmSolReply(mood as MoodType);
     const newStreak = calculateNewStreak(user.streak, user.timezone);
 
     user.streak = newStreak;

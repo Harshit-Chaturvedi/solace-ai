@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { User, type IUser } from "../../models/User.js";
+import { type IUser } from "../../models/User.js";
 import { Mood } from "../../models/Mood.js";
 import { Memory } from "../../models/Memory.js";
 import { Message } from "../../models/Message.js";
@@ -67,15 +67,15 @@ export async function buildChatContext(
     )
     .replace("{{dateTime}}", dateTimeStr);
 
-  // 5. Last 16 messages
+  // 5. Newest 16 messages in chronological order
   const recentMessages = await Message.find({
     conversationId: conversation._id,
   })
-    .sort({ createdAt: 1 })
+    .sort({ createdAt: -1 })
     .limit(16)
     .lean();
 
-  const history = recentMessages.map((m) => ({
+  const history = recentMessages.reverse().map((m) => ({
     role: (m.role === "assistant" ? "model" : "user") as "user" | "model",
     text: m.content,
   }));

@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { z } from "zod";
 import { requireAuth } from "../middleware/auth.js";
 import { validateBody } from "../middleware/validate.js";
+import { chatLimiter } from "../middleware/rateLimit.js";
 import { Conversation } from "../models/Conversation.js";
 import { Message } from "../models/Message.js";
 import { User } from "../models/User.js";
@@ -14,6 +15,7 @@ chatRouter.use(requireAuth);
 
 const createConvSchema = z.object({
   firstMessage: z.string().trim().optional(),
+  seed: z.string().trim().optional(),
 });
 
 const postMessageSchema = z.object({
@@ -30,14 +32,21 @@ chatRouter.post(
       return;
     }
 
+    const { firstMessage, seed } = req.body;
+    const initialText = seed || firstMessage;
+
     const conversation = await Conversation.create({
       userId: new mongoose.Types.ObjectId(req.userId),
-      title: "New Conversation",
+      title: initialText ? (initialText.length > 30 ? `${initialText.slice(0, 27)}...` : initialText) : "New Conversation",
       lastMessageAt: new Date(),
       messageCount: 0,
     });
 
-    const greetingText = `Hi ${user.name}, I'm here. How is your heart doing right now?`;
+    let greetingText = `Hi ${user.name}, I'm here. How is your heart doing right now?`;
+    if (initialText) {
+      greetingText = `Hi ${user.name}, I see you'd like to talk about "${initialText}". I'm right here with you. How are you feeling about it?`;
+    }
+
     const initialAssistantMsg = await Message.create({
       conversationId: conversation._id,
       userId: new mongoose.Types.ObjectId(req.userId),
@@ -45,6 +54,9 @@ chatRouter.post(
       content: greetingText,
       suggestion: null,
     });
+
+    conversation.lastMessageText = greetingText;
+    await conversation.save();
 
     res.status(201).json({
       conversation,
@@ -61,7 +73,12 @@ chatRouter.get("/", async (req: Request, res: Response): Promise<void> => {
     .sort({ lastMessageAt: -1 })
     .lean();
 
-  res.json(conversations);
+  const formatted = conversations.map((c) => ({
+    ...c,
+    lastMessagePreview: c.lastMessageText || "",
+  }));
+
+  res.json(formatted);
 });
 
 chatRouter.get(
@@ -92,6 +109,7 @@ chatRouter.get(
 
 chatRouter.post(
   "/:id/messages",
+  chatLimiter,
   validateBody(postMessageSchema),
   async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;

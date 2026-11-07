@@ -44,7 +44,7 @@ export const SOL_RESPONSE_SCHEMA = {
       properties: {
         type: {
           type: "string",
-          enum: ["breathing", "journal", "affirmation", "checkin", "selfcare"],
+          enum: ["breathing", "breathe", "affirmation", "checkin", "crisis"],
         },
         title: { type: "string" },
         params: {

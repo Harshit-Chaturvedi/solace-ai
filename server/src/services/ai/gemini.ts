@@ -26,6 +26,7 @@ export async function generateJSON<T>(opts: {
         temperature: opts.temperature ?? 0.7,
         responseMimeType: "application/json",
         responseSchema: opts.schema,
+        abortSignal: controller.signal,
       },
     });
 

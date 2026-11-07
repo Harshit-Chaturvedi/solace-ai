@@ -5,13 +5,21 @@ export const CRISIS_KEYWORDS = [
   "want to die",
   "marna chahta",
   "marna chahti",
-  "marna",
+  "mar jaana chahta",
+  "mar jana chahta",
+  "jeena nahi chahta",
+  "jeena nahi chahti",
   "jeena nahi",
   "khudkushi",
   "self harm",
   "cutting myself",
   "hang myself",
-  "overdose",
+  "overdose on",
+  "i don't want to be here anymore",
+  "dont want to be here anymore",
+  "sab khatam kar dena chahta hoon",
+  "sab khatam kar dena chahti hoon",
+  "sab khatam kar dena",
 ];
 
 export const CRISIS_SUPPORT_REPLY =
