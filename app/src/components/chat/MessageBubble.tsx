@@ -14,7 +14,7 @@ interface MessageBubbleProps {
 }
 
 export function MessageBubble({ message, isNewest }: MessageBubbleProps): React.JSX.Element {
-  const isUser = message.sender === "user";
+  const isUser = (message.role || message.sender) === "user";
   const shouldAnimate = !isUser && isNewest;
   const [displayedText, setDisplayedText] = useState(shouldAnimate ? "" : message.content);
 

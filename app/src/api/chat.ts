@@ -10,7 +10,8 @@ export interface ActivitySuggestion {
 export interface MessageItem {
   _id: string;
   conversationId: string;
-  sender: 'user' | 'assistant';
+  role: 'user' | 'assistant';
+  sender?: 'user' | 'assistant';
   content: string;
   suggestion?: ActivitySuggestion | null;
   flagged?: 'crisis' | null;

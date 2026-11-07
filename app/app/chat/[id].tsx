@@ -54,6 +54,7 @@ export default function ChatScreen(): React.JSX.Element {
       const optimisticMsg: MessageItem = {
         _id: "temp-" + Date.now(),
         conversationId,
+        role: "user",
         sender: "user",
         content: text,
         createdAt: new Date().toISOString(),
@@ -122,7 +123,7 @@ export default function ChatScreen(): React.JSX.Element {
 
   const newestAssistantId = useMemo(() => {
     for (let i = allMessages.length - 1; i >= 0; i--) {
-      if (allMessages[i].sender === "assistant") {
+      if ((allMessages[i].role || allMessages[i].sender) === "assistant") {
         return allMessages[i]._id;
       }
     }
