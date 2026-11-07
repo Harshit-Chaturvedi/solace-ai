@@ -116,17 +116,17 @@ export async function processUserMessage(opts: {
   conversation.lastMessageAt = new Date();
   conversation.lastMessageText = assistantMessage.content;
   conversation.messageCount += 2;
+  const userTurnCount = Math.floor(conversation.messageCount / 2);
 
-  // Title generation on first turn if still default
+  // Title generation strictly on turn 1
   if (
-    conversation.title === "New Conversation" ||
-    conversation.messageCount <= 2
+    userTurnCount === 1 &&
+    (conversation.title === "New Conversation" || !conversation.title)
   ) {
     const fallbackTitle =
       content.length > 40 ? `${content.slice(0, 37)}...` : content;
     conversation.title = fallbackTitle;
 
-    // Asynchronously generate concise 3-5 word title with Gemini
     generateJSON<{ title: string }>({
       system:
         "Generate a gentle 3-5 word title summarizing this message for a wellness chat. Return JSON with 'title'.",
@@ -138,7 +138,7 @@ export async function processUserMessage(opts: {
       },
     })
       .then(async (res) => {
-        if (res.title) {
+        if (res?.title) {
           await Conversation.findByIdAndUpdate(convId, {
             title: res.title.trim().replace(/^["']|["']$/g, ""),
           });
@@ -149,9 +149,20 @@ export async function processUserMessage(opts: {
 
   await conversation.save();
 
-  // 4. Memory extraction non-awaited, only when memoryEnabled, every 3rd user turn
-  const userTurnCount = Math.floor(conversation.messageCount / 2);
-  if (user.memoryEnabled && userTurnCount % 3 === 0) {
+  // 4. Memory extraction on turns 3, 6, and every 6th turn
+  const shouldExtract =
+    user.memoryEnabled &&
+    (userTurnCount === 3 ||
+      userTurnCount === 6 ||
+      (userTurnCount > 6 && userTurnCount % 6 === 0));
+
+  if (!user.memoryEnabled) {
+    console.log("Memory extraction skipped: memoryEnabled is false");
+  } else if (!shouldExtract) {
+    console.log(
+      `Memory extraction skipped: turn ${userTurnCount} is not an extraction turn (runs on turns 3, 6, then every 6th turn)`,
+    );
+  } else {
     Message.find({ conversationId: convId })
       .sort({ createdAt: -1 })
       .limit(6)
@@ -168,7 +179,8 @@ export async function processUserMessage(opts: {
         });
       })
       .catch((err) => {
-        console.warn("Memory extraction warning:", (err as Error)?.message);
+        const e = err as Error;
+        console.error(`Memory extraction error: [${e.name}] ${e.message}`);
       });
   }
 

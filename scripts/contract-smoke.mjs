@@ -146,13 +146,22 @@ await test("after 6+ user turns GET /memories is non-empty", async () => {
     content: "My dog Bruno always helps me calm down when I am stressed.",
   });
 
-  // Give async extractor a brief moment
-  await new Promise((resolve) => setTimeout(resolve, 3000));
+  // Poll GET /memories every 3s for up to 30s as extraction runs in the background
+  let mems = [];
+  const maxAttempts = 10;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    const memRes = await api("GET", "/memories");
+    if (memRes.status === 200) {
+      const data = memRes.json?.memories || memRes.json;
+      if (Array.isArray(data) && data.length > 0) {
+        mems = data;
+        break;
+      }
+    }
+  }
 
-  const memRes = await api("GET", "/memories");
-  eq(memRes.status, 200, "memories status");
-  const mems = memRes.json?.memories || memRes.json;
-  truthy(Array.isArray(mems) && mems.length > 0, `memories extracted: ${JSON.stringify(mems)}`);
+  truthy(Array.isArray(mems) && mems.length > 0, `memories extracted within 30s: ${JSON.stringify(mems)}`);
 });
 
 // 9. Cleanup throwaway user
