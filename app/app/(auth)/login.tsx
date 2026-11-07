@@ -12,6 +12,8 @@ import { Screen, Text, Button, Card, Input } from "../../src/components/ui/index
 import { SolMascot } from "../../src/components/Sol/index.js";
 import { colors, spacing } from "../../src/theme/index.js";
 import { login } from "../../src/api/auth.js";
+import { getReminders } from "../../src/api/reminders.js";
+import { syncReminders } from "../../src/lib/notifications.js";
 import { useAuthStore } from "../../src/store/auth.js";
 import { ApiError } from "../../src/api/client.js";
 
@@ -43,6 +45,11 @@ export default function LoginScreen() {
         password,
       });
       await setAuth(res.token, res.user);
+      getReminders()
+        .then((rems) => {
+          if (rems && rems.length > 0) syncReminders(rems);
+        })
+        .catch(() => {});
 
       if (res.user.onboardingDone) {
         router.replace("/(tabs)/home");

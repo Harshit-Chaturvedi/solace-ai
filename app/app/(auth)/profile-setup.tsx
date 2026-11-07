@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Screen, Text } from "../../src/components/ui/index.js";
 import { SolMascot } from "../../src/components/Sol/index.js";
 import { colors, spacing } from "../../src/theme/index.js";
 import { updateMe } from "../../src/api/auth.js";
 import { createReminder } from "../../src/api/reminders.js";
-import { syncReminders } from "../../src/lib/notifications.js";
+import { syncReminders, requestNotificationPermissions } from "../../src/lib/notifications.js";
 import { useAuthStore } from "../../src/store/auth.js";
 import { haptics } from "../../src/lib/haptics.js";
 import { StepOne } from "../../src/components/profile-setup/StepOne.js";
@@ -52,17 +52,42 @@ export default function ProfileSetupScreen() {
         onboardingDone: true,
       });
       setUser(updated);
+      let granted = false;
       try {
-        const defaultRem = await createReminder({
-          type: "checkin",
-          title: "Daily Check-in",
-          body: "How is your heart doing today? Take a moment with Sol.",
-          time: checkinTime || "09:00",
-          enabled: true,
+        granted = await new Promise<boolean>((resolve) => {
+          Alert.alert(
+            "Gentle reminders",
+            "Allow notifications so Sol can check in with you?",
+            [
+              { text: "Not now", style: "cancel", onPress: () => resolve(false) },
+              {
+                text: "Allow",
+                onPress: async () => {
+                  const res = await requestNotificationPermissions();
+                  resolve(res);
+                },
+              },
+            ],
+            { cancelable: false },
+          );
         });
-        await syncReminders([defaultRem]);
       } catch {
-        // Non-blocking
+        granted = false;
+      }
+
+      if (granted) {
+        try {
+          const defaultRem = await createReminder({
+            type: "checkin",
+            title: "Daily Check-in",
+            body: "How is your heart doing today? Take a moment with Sol.",
+            time: checkinTime || "09:00",
+            enabled: true,
+          });
+          await syncReminders([defaultRem]);
+        } catch {
+          // Non-blocking
+        }
       }
       haptics.success();
       router.replace("/(tabs)/home");

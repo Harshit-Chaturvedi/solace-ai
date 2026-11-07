@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Text } from "../ui/Text.js";
 import { colors } from "../../theme/colors.js";
 import { spacing, radius } from "../../theme/spacing.js";
@@ -9,11 +9,12 @@ import { SupportCard } from "./SupportCard.js";
 import { ActivityCard } from "./ActivityCard.js";
 
 interface MessageBubbleProps {
-  message: MessageItem;
+  message: MessageItem & { failed?: boolean };
   isNewest?: boolean;
+  onRetry?: (text: string) => void;
 }
 
-export function MessageBubble({ message, isNewest }: MessageBubbleProps): React.JSX.Element {
+export function MessageBubble({ message, isNewest, onRetry }: MessageBubbleProps): React.JSX.Element {
   const isUser = (message.role || message.sender) === "user";
   const shouldAnimate = !isUser && isNewest;
   const [displayedText, setDisplayedText] = useState(shouldAnimate ? "" : message.content);
@@ -48,7 +49,16 @@ export function MessageBubble({ message, isNewest }: MessageBubbleProps): React.
       ) : null}
 
       <View style={[styles.bubbleWrapper, isUser ? styles.userWrapper : styles.assistantWrapper]}>
-        <View style={[styles.bubble, isUser ? styles.userBubble : styles.assistantBubble]}>
+        <View
+          style={[
+            styles.bubble,
+            isUser
+              ? message.failed
+                ? styles.userBubbleFailed
+                : styles.userBubble
+              : styles.assistantBubble,
+          ]}
+        >
           <Text
             variant="body"
             color={isUser ? colors.surface : colors.ink}
@@ -57,6 +67,18 @@ export function MessageBubble({ message, isNewest }: MessageBubbleProps): React.
             {displayedText}
           </Text>
         </View>
+
+        {message.failed && onRetry ? (
+          <TouchableOpacity
+            style={styles.retryBtn}
+            onPress={() => onRetry(message.content)}
+            activeOpacity={0.7}
+          >
+            <Text variant="caption" color={colors.danger}>
+              Failed to send. Tap to retry
+            </Text>
+          </TouchableOpacity>
+        ) : null}
 
         {message.flagged === "crisis" ? <SupportCard /> : null}
 
@@ -100,6 +122,17 @@ const styles = StyleSheet.create({
   userBubble: {
     backgroundColor: colors.primary,
     borderBottomRightRadius: 4,
+  },
+  userBubbleFailed: {
+    backgroundColor: colors.primary,
+    borderWidth: 1,
+    borderColor: colors.danger,
+    borderBottomRightRadius: 4,
+  },
+  retryBtn: {
+    marginTop: 4,
+    alignSelf: "flex-end",
+    paddingVertical: 2,
   },
   assistantBubble: {
     backgroundColor: colors.surface,

@@ -1,17 +1,9 @@
 import React, { useState, useMemo } from "react";
-import {
-  View,
-  StyleSheet,
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  Alert,
-  TouchableOpacity,
-} from "react-native";
+import { View, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Alert, TouchableOpacity } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Screen } from "../../src/components/ui/Screen.js";
-import { Text } from "../../src/components/ui/Text.js";
+import { useNetInfo } from "@react-native-community/netinfo";
+import { Screen, Text } from "../../src/components/ui/index.js";
 import { MessageBubble } from "../../src/components/chat/MessageBubble.js";
 import { Composer } from "../../src/components/chat/Composer.js";
 import { TypingSol } from "../../src/components/Sol/TypingSol.js";
@@ -24,8 +16,7 @@ import {
   deleteConversation,
   MessageItem,
 } from "../../src/api/chat.js";
-import { colors } from "../../src/theme/colors.js";
-import { spacing, radius } from "../../src/theme/spacing.js";
+import { colors, spacing, radius } from "../../src/theme/index.js";
 import { haptics } from "../../src/lib/haptics.js";
 
 const QUICK_PROMPTS = [
@@ -34,15 +25,19 @@ const QUICK_PROMPTS = [
   "Can we do a quick check-in?",
 ];
 
+type ChatMessage = MessageItem & { failed?: boolean };
+
 export default function ChatScreen(): React.JSX.Element {
   const router = useRouter();
   const queryClient = useQueryClient();
   const params = useLocalSearchParams<{ id: string; title?: string }>();
   const conversationId = params.id;
+  const netInfo = useNetInfo();
+  const isOffline = netInfo.isConnected === false;
 
   const [title, setTitle] = useState(params.title || "Conversation");
   const [isRenameOpen, setIsRenameOpen] = useState(false);
-  const [optimisticMessages, setOptimisticMessages] = useState<MessageItem[]>([]);
+  const [optimisticMessages, setOptimisticMessages] = useState<ChatMessage[]>([]);
 
   const { data: serverMessages = [], isLoading } = useQuery({
     queryKey: ["messages", conversationId],
@@ -53,13 +48,14 @@ export default function ChatScreen(): React.JSX.Element {
   const sendMutation = useMutation({
     mutationFn: (text: string) => sendMessage(conversationId, text),
     onMutate: async (text: string) => {
-      const optimisticMsg: MessageItem = {
+      const optimisticMsg: ChatMessage = {
         _id: "temp-" + Date.now(),
         conversationId,
         role: "user",
         sender: "user",
         content: text,
         createdAt: new Date().toISOString(),
+        failed: false,
       };
       setOptimisticMessages((prev) => [...prev, optimisticMsg]);
     },
@@ -71,10 +67,11 @@ export default function ChatScreen(): React.JSX.Element {
       );
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
     },
-    onError: () => {
-      setOptimisticMessages([]);
+    onError: (_err, text) => {
+      setOptimisticMessages((prev) =>
+        prev.map((m) => (m.content === text ? { ...m, failed: true } : m))
+      );
       haptics.warn();
-      Alert.alert("Message failed", "Unable to reach Sol. Please try again.");
     },
   });
 
@@ -86,12 +83,11 @@ export default function ChatScreen(): React.JSX.Element {
     return [...allMessages].reverse();
   }, [allMessages]);
 
-  const handleSend = (text: string) => {
-    sendMutation.mutate(text);
-  };
+  const handleSend = (text: string) => sendMutation.mutate(text);
 
-  const handleRename = () => {
-    setIsRenameOpen(true);
+  const handleRetry = (text: string) => {
+    setOptimisticMessages((prev) => prev.filter((m) => m.content !== text));
+    sendMutation.mutate(text);
   };
 
   const handleSaveRename = async (newTitle: string) => {
@@ -130,7 +126,7 @@ export default function ChatScreen(): React.JSX.Element {
     <Screen noPadding style={styles.screen}>
       <ChatHeader
         title={title}
-        onRename={Platform.OS === "ios" ? handleRename : undefined}
+        onRename={Platform.OS === "ios" ? () => setIsRenameOpen(true) : undefined}
         onDelete={handleDelete}
       />
 
@@ -147,6 +143,7 @@ export default function ChatScreen(): React.JSX.Element {
             <MessageBubble
               message={item}
               isNewest={item._id === newestAssistantId}
+              onRetry={handleRetry}
             />
           )}
           contentContainerStyle={styles.listContent}
@@ -164,14 +161,8 @@ export default function ChatScreen(): React.JSX.Element {
                   Quick suggestions:
                 </Text>
                 {QUICK_PROMPTS.map((prompt) => (
-                  <TouchableOpacity
-                    key={prompt}
-                    style={styles.quickChip}
-                    onPress={() => handleSend(prompt)}
-                  >
-                    <Text variant="caption" color={colors.primary}>
-                      {prompt}
-                    </Text>
+                  <TouchableOpacity key={prompt} style={styles.quickChip} onPress={() => handleSend(prompt)}>
+                    <Text variant="caption" color={colors.primary}>{prompt}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -179,7 +170,11 @@ export default function ChatScreen(): React.JSX.Element {
           }
         />
 
-        <Composer onSend={handleSend} disabled={sendMutation.isPending} />
+        <Composer
+          onSend={handleSend}
+          disabled={sendMutation.isPending || isOffline}
+          placeholder={isOffline ? "You are offline..." : "Message Sol..."}
+        />
       </KeyboardAvoidingView>
       <RenameModal
         visible={isRenameOpen}
@@ -192,28 +187,12 @@ export default function ChatScreen(): React.JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    backgroundColor: colors.bg,
-  },
-  container: {
-    flex: 1,
-  },
-  listContent: {
-    paddingVertical: spacing.md,
-  },
-  typingContainer: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    alignItems: "flex-start",
-  },
-  quickPrompts: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    gap: spacing.xs,
-  },
-  quickTitle: {
-    marginBottom: spacing.xs,
-  },
+  screen: { backgroundColor: colors.bg },
+  container: { flex: 1 },
+  listContent: { paddingVertical: spacing.md },
+  typingContainer: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, alignItems: "flex-start" },
+  quickPrompts: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, gap: spacing.xs },
+  quickTitle: { marginBottom: spacing.xs },
   quickChip: {
     backgroundColor: colors.surface,
     borderWidth: 1,

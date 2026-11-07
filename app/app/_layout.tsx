@@ -16,6 +16,8 @@ import {
 import { OfflineBanner } from "../src/components/ui/OfflineBanner.js";
 import { getReminders } from "../src/api/reminders.js";
 import { syncReminders } from "../src/lib/notifications.js";
+import { useAuthStore } from "../src/store/auth.js";
+import { pendingLink } from "../src/lib/pendingLink.js";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -54,18 +56,39 @@ export default function RootLayout(): React.JSX.Element | null {
     }
   }, [fontsLoaded, fontError]);
 
+  const authStatus = useAuthStore((s) => s.status);
+  const syncedRef = React.useRef(false);
+
   useEffect(() => {
-    getReminders().then((rems) => {
-      if (rems && rems.length > 0) {
-        syncReminders(rems);
+    if (authStatus === "authenticated" && !syncedRef.current) {
+      syncedRef.current = true;
+      getReminders()
+        .then((rems) => {
+          if (rems && rems.length > 0) {
+            syncReminders(rems);
+          }
+        })
+        .catch(() => {});
+    } else if (authStatus !== "authenticated") {
+      syncedRef.current = false;
+    }
+  }, [authStatus]);
+
+  useEffect(() => {
+    const handleNotificationUrl = (url: string) => {
+      const auth = useAuthStore.getState();
+      if (auth.status !== "authenticated" || pendingLink.isSplashActive()) {
+        pendingLink.set(url);
+      } else {
+        router.push(url as any); // expo-router route
       }
-    }).catch(() => {});
+    };
 
     // Handle cold start from killed app
     Notifications.getLastNotificationResponseAsync().then((response) => {
       const url = response?.notification?.request?.content?.data?.url;
       if (typeof url === "string" && url.length > 0) {
-        setTimeout(() => router.push(url as any), 500); // expo-router route
+        handleNotificationUrl(url);
       }
     });
 
@@ -74,7 +97,7 @@ export default function RootLayout(): React.JSX.Element | null {
       (response) => {
         const url = response?.notification?.request?.content?.data?.url;
         if (typeof url === "string" && url.length > 0) {
-          router.push(url as any); // expo-router route
+          handleNotificationUrl(url);
         }
       }
     );

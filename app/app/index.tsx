@@ -11,6 +11,7 @@ import { Screen, Text } from "../src/components/ui/index.js";
 import { SolMascot } from "../src/components/Sol/index.js";
 import { colors, spacing } from "../src/theme/index.js";
 import { useAuthStore } from "../src/store/auth.js";
+import { pendingLink } from "../src/lib/pendingLink.js";
 
 export default function SplashScreen() {
   const router = useRouter();
@@ -41,6 +42,8 @@ export default function SplashScreen() {
     if (!minTimeElapsed || status === "loading") return;
 
     if (status === "unauthenticated") {
+      pendingLink.clear();
+      pendingLink.setSplashActive(false);
       if (hasSeenOnboarding) {
         router.replace("/(auth)/login");
       } else {
@@ -48,9 +51,16 @@ export default function SplashScreen() {
       }
     } else if (status === "authenticated") {
       if (!user?.onboardingDone) {
+        pendingLink.clear();
+        pendingLink.setSplashActive(false);
         router.replace("/(auth)/profile-setup");
       } else {
+        pendingLink.setSplashActive(false);
         router.replace("/(tabs)/home");
+        const pendingUrl = pendingLink.clear();
+        if (pendingUrl) {
+          router.push(pendingUrl as any); // expo-router route
+        }
       }
     }
   }, [minTimeElapsed, status, user, hasSeenOnboarding, router]);
