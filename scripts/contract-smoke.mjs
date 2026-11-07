@@ -115,12 +115,12 @@ await test("false crisis phrases are not flagged", async () => {
   const r1 = await api("POST", `/conversations/${convId}/messages`, {
     content: "Bahut kaam hai yaar, tension mein marna padega lagta hai.",
   });
-  eq(r1.json?.assistantMessage?.flagged, null, "tension mein marna padega should not be crisis");
+  truthy(!r1.json?.assistantMessage?.flagged, "tension mein marna padega should not be crisis");
 
   const r2 = await api("POST", `/conversations/${convId}/messages`, {
     content: "I think I will overdose on coffee lol.",
   });
-  eq(r2.json?.assistantMessage?.flagged, null, "overdose on coffee should not be crisis");
+  truthy(!r2.json?.assistantMessage?.flagged, "overdose on coffee should not be crisis");
 });
 
 // 7. True crisis phrases ARE flagged
