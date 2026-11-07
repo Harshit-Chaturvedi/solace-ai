@@ -79,7 +79,10 @@ export default function CheckinScreen() {
 
   return (
     <Screen>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
         {step !== "success" ? (
           <View>
             <View style={styles.topBar}>
@@ -188,7 +191,7 @@ export default function CheckinScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollContent: { paddingVertical: spacing.base },
+  scrollContent: { paddingVertical: spacing.base, paddingBottom: 40 },
   topBar: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -196,8 +199,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   stepContainer: { alignItems: "center" },
-  title: { marginBottom: spacing.xs },
-  subtitle: { marginBottom: spacing.xl, maxWidth: 280 },
+  title: { marginBottom: spacing.xs, paddingHorizontal: spacing.sm },
+  subtitle: { marginBottom: spacing.lg, width: "100%", paddingHorizontal: spacing.sm },
   card: { width: "100%", marginBottom: spacing.xl },
   chipGrid: { flexDirection: "row", flexWrap: "wrap" },
   chipSpacing: { marginRight: spacing.sm, marginBottom: spacing.sm },

@@ -179,6 +179,7 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingVertical: spacing.sm,
+    paddingBottom: 80,
   },
   itemCard: {
     backgroundColor: colors.bg,

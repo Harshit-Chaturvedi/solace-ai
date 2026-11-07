@@ -74,14 +74,17 @@ const styles = StyleSheet.create({
   moodLabel: { marginTop: spacing.md },
   facesRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
+    flexWrap: "wrap",
     width: "100%",
-    marginBottom: spacing.xxl,
+    marginBottom: spacing.xl,
   },
   moodChoice: {
     alignItems: "center",
-    padding: spacing.sm,
+    padding: spacing.xs,
     borderRadius: spacing.md,
+    minWidth: 54,
+    marginVertical: spacing.xs,
   },
   moodChoiceSelected: { backgroundColor: colors.primarySoft },
   moodIndicator: {

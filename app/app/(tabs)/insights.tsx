@@ -129,6 +129,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingVertical: spacing.md,
+    paddingBottom: 80,
     gap: spacing.md,
   },
   headerTitle: {

@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     marginBottom: spacing.xs,
-    maxWidth: 240,
+    paddingHorizontal: spacing.md,
   },
   wakingText: {
     marginTop: spacing.xs,

@@ -173,6 +173,7 @@ export default function ProfileSetupScreen() {
 const styles = StyleSheet.create({
   scrollContent: {
     paddingVertical: spacing.xl,
+    paddingBottom: 40,
   },
   header: {
     alignItems: "center",

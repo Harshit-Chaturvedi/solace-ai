@@ -202,6 +202,7 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingVertical: spacing.xs,
+    paddingBottom: 40,
   },
   memoryCard: {
     backgroundColor: colors.surface,

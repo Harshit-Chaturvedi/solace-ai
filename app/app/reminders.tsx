@@ -139,48 +139,61 @@ export default function RemindersScreen(): React.JSX.Element {
         </TouchableOpacity>
       </View>
 
-      {hasPermission === false && (
-        <View style={styles.permissionBanner}>
-          <Text variant="caption" color={colors.danger} center>
-            Notifications are disabled. Enable them in your phone's Settings to receive reminders.
-          </Text>
-        </View>
-      )}
-
-      {reminders.length === 0 && !isLoading ? (
-        <View style={styles.emptyContainer}>
-          <EmptyState title="No reminders yet" description="Set a gentle nudge to check in, breathe, or reflect throughout your day." />
-        </View>
-      ) : (
-        <FlatList
-          data={reminders}
-          keyExtractor={(r) => r._id}
-          renderItem={({ item }) => (
-            <ReminderCard
-              item={item}
-              onToggle={(enabled) => toggleMutation.mutate({ id: item._id, enabled })}
-              onDelete={() => deleteMut.mutate(item._id)}
-            />
-          )}
-          contentContainerStyle={styles.list}
-        />
-      )}
-
-      <View style={styles.presetsSection}>
-        <Text variant="small" color={colors.inkSoft} style={styles.sectionTitle}>Suggested Presets</Text>
-        {PRESET_REMINDERS.map((preset) => (
-          <TouchableOpacity key={preset.title} style={styles.presetItem} onPress={() => handleAddPreset(preset)} activeOpacity={0.7}>
-            <View>
-              <Text variant="bodyBold" color={colors.ink}>{preset.title} ({preset.time})</Text>
-              <Text variant="caption" color={colors.inkSoft}>{preset.body}</Text>
+      <FlatList
+        data={reminders}
+        keyExtractor={(r) => r._id}
+        renderItem={({ item }) => (
+          <ReminderCard
+            item={item}
+            onToggle={(enabled) => toggleMutation.mutate({ id: item._id, enabled })}
+            onDelete={() => deleteMut.mutate(item._id)}
+          />
+        )}
+        ListHeaderComponent={
+          hasPermission === false ? (
+            <View style={styles.permissionBanner}>
+              <Text variant="caption" color={colors.danger} center>
+                Notifications are disabled. Enable them in your phone's Settings to receive reminders.
+              </Text>
             </View>
-            <Text variant="bodyBold" color={colors.primary}>+ Add</Text>
-          </TouchableOpacity>
-        ))}
-        <TouchableOpacity style={styles.testBtn} onPress={handleSendTest} activeOpacity={0.7}>
-          <Text variant="bodyBold" color={colors.primary} center>Send test notification (5s)</Text>
-        </TouchableOpacity>
-      </View>
+          ) : undefined
+        }
+        ListEmptyComponent={
+          !isLoading ? (
+            <View style={styles.emptyContainer}>
+              <EmptyState title="No reminders yet" description="Set a gentle nudge to check in, breathe, or reflect throughout your day." />
+            </View>
+          ) : undefined
+        }
+        ListFooterComponent={
+          <View style={styles.presetsSection}>
+            <Text variant="small" color={colors.inkSoft} style={styles.sectionTitle}>Suggested Presets</Text>
+            {PRESET_REMINDERS.map((preset) => (
+              <TouchableOpacity key={preset.title} style={styles.presetItem} onPress={() => handleAddPreset(preset)} activeOpacity={0.7}>
+                <View style={{ flex: 1, marginRight: spacing.sm }}>
+                  <Text variant="bodyBold" color={colors.ink}>{preset.title} ({preset.time})</Text>
+                  <Text variant="caption" color={colors.inkSoft}>{preset.body}</Text>
+                </View>
+                <Text variant="bodyBold" color={colors.primary}>+ Add</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity style={styles.testBtn} onPress={handleSendTest} activeOpacity={0.7}>
+              <Text
+                variant="bodyBold"
+                color={colors.primary}
+                center
+                numberOfLines={2}
+                adjustsFontSizeToFit
+                minimumFontScale={0.85}
+                maxFontSizeMultiplier={1.2}
+              >
+                Send test notification (5s)
+              </Text>
+            </TouchableOpacity>
+          </View>
+        }
+        contentContainerStyle={[styles.list, { paddingBottom: 40 }]}
+      />
       <CustomReminderModal visible={isCustomOpen} onClose={() => setIsCustomOpen(false)} onSave={handleSaveCustom} />
     </Screen>
   );
@@ -196,5 +209,5 @@ const styles = StyleSheet.create({
   presetsSection: { paddingTop: spacing.md, borderTopWidth: 1, borderTopColor: colors.primarySoft },
   sectionTitle: { marginBottom: spacing.sm },
   presetItem: { backgroundColor: colors.surface, padding: spacing.md, borderRadius: radius.md, flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: spacing.xs, borderWidth: 1, borderColor: colors.primarySoft },
-  testBtn: { backgroundColor: colors.surface, padding: spacing.sm, borderRadius: radius.md, borderWidth: 1, borderColor: colors.primary, marginTop: spacing.xs, alignItems: "center" },
+  testBtn: { backgroundColor: colors.surface, paddingVertical: 12, paddingHorizontal: 16, minHeight: 48, borderRadius: radius.md, borderWidth: 1, borderColor: colors.primary, marginTop: spacing.xs, justifyContent: "center", alignItems: "center" },
 });

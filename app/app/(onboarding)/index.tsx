@@ -159,14 +159,14 @@ export default function OnboardingScreen() {
 
 const styles = StyleSheet.create({
   topBar: {
-    height: 44,
+    minHeight: 44,
     flexDirection: "row",
     justifyContent: "flex-end",
     alignItems: "center",
     paddingHorizontal: spacing.sm,
   },
   spacer: {
-    width: 44,
+    minWidth: 44,
   },
   slide: {
     flex: 1,
@@ -175,26 +175,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.base,
   },
   mascotContainer: {
-    marginBottom: spacing.xxl,
-  },
-  title: {
-    marginBottom: spacing.md,
-  },
-  subtitle: {
-    maxWidth: 300,
     marginBottom: spacing.lg,
   },
+  title: {
+    marginBottom: spacing.sm,
+    paddingHorizontal: spacing.sm,
+  },
+  subtitle: {
+    width: "100%",
+    paddingHorizontal: spacing.sm,
+    marginBottom: spacing.md,
+  },
   disclaimer: {
-    maxWidth: 280,
+    width: "100%",
+    paddingHorizontal: spacing.md,
     opacity: 0.8,
   },
   bottomSection: {
-    paddingVertical: spacing.xl,
+    paddingVertical: spacing.md,
     alignItems: "center",
   },
   dotsRow: {
     flexDirection: "row",
-    marginBottom: spacing.xl,
+    marginBottom: spacing.lg,
   },
   dot: {
     height: 8,

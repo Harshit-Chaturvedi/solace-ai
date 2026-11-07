@@ -186,6 +186,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingVertical: spacing.md,
+    paddingBottom: 80,
     gap: spacing.md,
   },
   header: {
@@ -203,6 +204,7 @@ const styles = StyleSheet.create({
   },
   toneRow: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: spacing.sm,
   },
   navRow: {

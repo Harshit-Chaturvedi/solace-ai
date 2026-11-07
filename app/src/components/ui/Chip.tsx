@@ -29,6 +29,11 @@ export function Chip({ label, selected = false, onPress, style }: ChipProps) {
       <Text
         variant="small"
         color={selected ? colors.primary : colors.inkSoft}
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.85}
+        maxFontSizeMultiplier={1.2}
+        style={styles.label}
       >
         {label}
       </Text>
@@ -38,11 +43,17 @@ export function Chip({ label, selected = false, onPress, style }: ChipProps) {
 
 const styles = StyleSheet.create({
   chip: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.base,
+    minHeight: 36,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
     borderRadius: radius.chip,
     borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
     alignSelf: "flex-start",
+  },
+  label: {
+    flexShrink: 1,
   },
   chipSelected: {
     backgroundColor: colors.primarySoft,

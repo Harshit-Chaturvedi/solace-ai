@@ -153,6 +153,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingVertical: spacing.xl,
+    paddingBottom: 40,
     justifyContent: "center",
   },
   header: {
@@ -164,7 +165,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   subtitle: {
-    maxWidth: 280,
+    width: "100%",
+    paddingHorizontal: spacing.sm,
   },
   card: {
     marginBottom: spacing.xl,
@@ -184,5 +186,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    flexWrap: "wrap",
   },
 });

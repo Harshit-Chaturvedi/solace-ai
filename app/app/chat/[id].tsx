@@ -162,7 +162,9 @@ export default function ChatScreen(): React.JSX.Element {
                 </Text>
                 {QUICK_PROMPTS.map((prompt) => (
                   <TouchableOpacity key={prompt} style={styles.quickChip} onPress={() => handleSend(prompt)}>
-                    <Text variant="caption" color={colors.primary}>{prompt}</Text>
+                    <Text variant="caption" color={colors.primary} numberOfLines={2}>
+                      {prompt}
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </View>

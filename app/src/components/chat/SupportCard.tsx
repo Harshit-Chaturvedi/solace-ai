@@ -38,7 +38,15 @@ export function SupportCard(): React.JSX.Element {
           onPress={handleCallTeleManas}
           activeOpacity={0.8}
         >
-          <Text variant="small" color={colors.surface} style={styles.boldText}>
+          <Text
+            variant="small"
+            color={colors.surface}
+            style={styles.boldText}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.85}
+            maxFontSizeMultiplier={1.2}
+          >
             Call Tele-MANAS (14416)
           </Text>
         </TouchableOpacity>
@@ -48,7 +56,15 @@ export function SupportCard(): React.JSX.Element {
           onPress={handleCallEmergency}
           activeOpacity={0.8}
         >
-          <Text variant="small" color={colors.ink} style={styles.boldText}>
+          <Text
+            variant="small"
+            color={colors.ink}
+            style={styles.boldText}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.85}
+            maxFontSizeMultiplier={1.2}
+          >
             Emergency Services (112)
           </Text>
         </TouchableOpacity>
@@ -83,9 +99,11 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   button: {
-    paddingVertical: spacing.sm,
+    minHeight: 44,
+    paddingVertical: 12,
     paddingHorizontal: spacing.md,
     borderRadius: radius.md,
+    justifyContent: "center",
     alignItems: "center",
   },
   primaryButton: {

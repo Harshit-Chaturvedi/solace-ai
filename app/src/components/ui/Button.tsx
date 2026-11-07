@@ -24,6 +24,7 @@ export interface ButtonProps {
   variant?: ButtonVariant;
   loading?: boolean;
   disabled?: boolean;
+  numberOfLines?: number;
   style?: ViewStyle;
   accessibilityLabel?: string;
 }
@@ -34,6 +35,7 @@ export function Button({
   variant = "primary",
   loading = false,
   disabled = false,
+  numberOfLines = 1,
   style,
   accessibilityLabel,
 }: ButtonProps) {
@@ -84,7 +86,16 @@ export function Button({
       {loading ? (
         <ActivityIndicator color={textColor} size="small" />
       ) : (
-        <Text variant="bodyBold" color={textColor} center>
+        <Text
+          variant="bodyBold"
+          color={textColor}
+          center
+          numberOfLines={numberOfLines}
+          adjustsFontSizeToFit
+          minimumFontScale={0.85}
+          maxFontSizeMultiplier={1.2}
+          style={styles.label}
+        >
           {title}
         </Text>
       )}
@@ -94,13 +105,17 @@ export function Button({
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 52,
+    minHeight: 48,
     borderRadius: radius.button,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xl,
+    paddingVertical: 13,
+    paddingHorizontal: spacing.lg,
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "row",
+  },
+  label: {
+    flexShrink: 1,
+    textAlign: "center",
   },
   disabled: {
     opacity: 0.6,

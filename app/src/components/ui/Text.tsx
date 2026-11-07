@@ -21,8 +21,14 @@ export function Text({
   children,
   ...rest
 }: TextProps) {
+  const defaultMaxFontScale =
+    variant === "display" || variant === "h1" || variant === "h2" || variant === "h3"
+      ? 1.2
+      : undefined;
+
   return (
     <RNText
+      maxFontSizeMultiplier={rest.maxFontSizeMultiplier ?? defaultMaxFontScale}
       style={[
         styles.base,
         variantStyles[variant],

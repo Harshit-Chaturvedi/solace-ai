@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, StyleSheet, TouchableOpacity, Share } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Share, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import Svg, { Path } from "react-native-svg";
@@ -75,9 +75,12 @@ export default function AffirmationScreen(): React.JSX.Element {
         <View style={styles.backButton} />
       </View>
 
-      <View style={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.mascot}>
-          <SolMascot size={90} expression="calm" />
+          <SolMascot size={80} expression="calm" />
         </View>
 
         <View style={styles.card}>
@@ -107,7 +110,7 @@ export default function AffirmationScreen(): React.JSX.Element {
             style={styles.actionBtn}
           />
         </View>
-      </View>
+      </ScrollView>
     </Screen>
   );
 }
@@ -132,14 +135,15 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 1.2,
   },
-  content: {
-    flex: 1,
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: spacing.md,
+    paddingBottom: 40,
   },
   mascot: {
-    marginBottom: spacing.xl,
+    marginBottom: spacing.lg,
   },
   card: {
     backgroundColor: colors.surface,
@@ -168,11 +172,13 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: spacing.md,
-    marginTop: spacing.xxl,
+    marginTop: spacing.xl,
     width: "100%",
   },
   actionBtn: {
     flex: 1,
+    minWidth: 120,
   },
 });

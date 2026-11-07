@@ -134,7 +134,14 @@ export default function BreatheScreen(): React.JSX.Element {
             End
           </Text>
         </TouchableOpacity>
-        <Text variant="h3" color={colors.ink}>
+        <Text
+          variant="h3"
+          color={colors.ink}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.85}
+          style={styles.headerTitle}
+        >
           {selectedPattern.toUpperCase()} Breathing
         </Text>
         <TouchableOpacity
@@ -183,6 +190,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: spacing.sm,
+  },
+  headerTitle: {
+    flexShrink: 1,
+    paddingHorizontal: spacing.xs,
+    textAlign: "center",
   },
   main: {
     flex: 1,

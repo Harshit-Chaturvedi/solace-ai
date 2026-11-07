@@ -69,7 +69,7 @@ export function StepThree({
 const styles = StyleSheet.create({
   card: { marginBottom: spacing.base },
   cardHeading: { marginBottom: spacing.md },
-  toneRow: { flexDirection: "row", marginBottom: spacing.lg },
+  toneRow: { flexDirection: "row", flexWrap: "wrap", marginBottom: spacing.lg },
   timeRow: {
     flexDirection: "row",
     flexWrap: "wrap",

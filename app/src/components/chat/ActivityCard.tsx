@@ -68,7 +68,15 @@ export function ActivityCard({ suggestion }: ActivityCardProps): React.JSX.Eleme
         onPress={handlePress}
         activeOpacity={0.8}
       >
-        <Text variant="small" color={colors.surface} style={styles.actionText}>
+        <Text
+          variant="small"
+          color={colors.surface}
+          style={styles.actionText}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.85}
+          maxFontSizeMultiplier={1.2}
+        >
           Start Activity
         </Text>
       </TouchableOpacity>
@@ -95,10 +103,13 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   actionButton: {
+    minHeight: 40,
     backgroundColor: colors.primary,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     borderRadius: radius.md,
+    alignSelf: "flex-start",
+    justifyContent: "center",
     alignItems: "center",
   },
   actionText: {

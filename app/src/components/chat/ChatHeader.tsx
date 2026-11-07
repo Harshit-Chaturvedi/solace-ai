@@ -47,7 +47,15 @@ export function ChatHeader({ title, onRename, onDelete }: ChatHeaderProps): Reac
           <SolMascot size={32} expression="calm" />
         </View>
         <View style={styles.textContainer}>
-          <Text variant="h3" color={colors.ink} style={styles.title} numberOfLines={1}>
+          <Text
+            variant="h3"
+            color={colors.ink}
+            style={styles.title}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.85}
+            maxFontSizeMultiplier={1.2}
+          >
             {title}
           </Text>
           <Text variant="caption" color={colors.primary}>
