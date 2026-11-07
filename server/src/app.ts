@@ -1,5 +1,6 @@
 import "express-async-errors";
 import express, { type Request, type Response } from "express";
+import mongoose from "mongoose";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -19,12 +20,16 @@ import { errorHandler } from "./middleware/error.js";
 export const app = express();
 
 app.use(helmet());
-app.use(cors({ origin: env.CORS_ORIGIN }));
+app.use(cors(env.CORS_ORIGIN ? { origin: env.CORS_ORIGIN } : undefined));
 app.use(express.json());
 app.use(morgan("dev"));
 
 app.get("/api/v1/health", (_req: Request, res: Response) => {
-  res.json({ ok: true });
+  const isDbConnected = mongoose.connection.readyState === 1;
+  res.json({
+    ok: true,
+    db: isDbConnected ? "connected" : "disconnected",
+  });
 });
 
 app.use("/api/v1/auth", authRouter);

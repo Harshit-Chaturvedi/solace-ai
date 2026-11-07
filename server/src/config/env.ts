@@ -7,11 +7,11 @@ const envSchema = z
   .object({
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
     PORT: z.string().default("4000").transform((val) => parseInt(val, 10)),
-    MONGODB_URI: z.string().default("mongodb://localhost:27017/solace"),
-    JWT_SECRET: z.string().default("development-jwt-secret-key-change-in-production"),
-    GEMINI_API_KEY: z.string().default(""),
+    MONGODB_URI: z.string().min(1, "MONGODB_URI is required"),
+    JWT_SECRET: z.string().min(1, "JWT_SECRET is required"),
+    GEMINI_API_KEY: z.string().min(1, "GEMINI_API_KEY is required"),
     GEMINI_MODEL: z.string().default("gemini-3.5-flash-lite"),
-    CORS_ORIGIN: z.string().default("*"),
+    CORS_ORIGIN: z.string().optional(),
   })
   .refine(
     (data) => {
@@ -24,7 +24,7 @@ const envSchema = z
       return true;
     },
     {
-      message: "JWT_SECRET must be explicitly set in production",
+      message: "JWT_SECRET must be explicitly set with a secure key in production",
       path: ["JWT_SECRET"],
     },
   );

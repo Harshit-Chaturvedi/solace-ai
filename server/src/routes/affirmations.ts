@@ -1,7 +1,9 @@
 import { Router, type Request, type Response } from "express";
+import mongoose from "mongoose";
 import { requireAuth } from "../middleware/auth.js";
-import { User } from "../models/User.js";
+import { User, type IUser } from "../models/User.js";
 import { formatLocalDate } from "../services/streak.js";
+import { generateJSON } from "../services/ai/gemini.js";
 
 export const affirmationsRouter = Router();
 
@@ -20,6 +22,13 @@ export const DAILY_AFFIRMATIONS = [
   "I choose calm over hurry, and trust my own journey.",
 ];
 
+export interface CachedAffirmation {
+  text: string;
+  dateStr: string;
+}
+
+const userAffirmationCache = new Map<string, CachedAffirmation>();
+
 export function getDailyAffirmation(timezone: string = "Asia/Kolkata"): {
   text: string;
   dateStr: string;
@@ -32,10 +41,63 @@ export function getDailyAffirmation(timezone: string = "Asia/Kolkata"): {
   return { text, dateStr };
 }
 
+export async function getPersonalizedDailyAffirmation(user: {
+  _id: string | mongoose.Types.ObjectId;
+  name?: string;
+  companionTone?: string;
+  goals?: string[];
+  timezone?: string;
+}): Promise<{ text: string; dateStr: string }> {
+  const tz = user.timezone || "Asia/Kolkata";
+  const now = new Date();
+  const dateStr = formatLocalDate(now, tz);
+  const cacheKey = `${user._id}_${dateStr}`;
+
+  const cached = userAffirmationCache.get(cacheKey);
+  if (cached && cached.dateStr === dateStr) {
+    return cached;
+  }
+
+  const fallback = getDailyAffirmation(tz);
+
+  try {
+    const tone = user.companionTone || "gentle";
+    const name = user.name || "friend";
+    const goals = user.goals?.length ? user.goals.join(", ") : "inner peace and wellness";
+
+    const prompt = `Generate a 1-sentence warm, uplifting daily affirmation for ${name} (goals: "${goals}"). Tone: ${tone}. Do not use quotes or prefixes, max 20 words. Return JSON with "text".`;
+
+    const aiRes = await generateJSON<{ text: string }>({
+      system: prompt,
+      history: [{ role: "user", text: "Today's affirmation" }],
+      schema: {
+        type: "object",
+        properties: { text: { type: "string" } },
+        required: ["text"],
+      },
+    });
+
+    if (aiRes?.text?.trim()) {
+      const result = { text: aiRes.text.trim(), dateStr };
+      userAffirmationCache.set(cacheKey, result);
+      return result;
+    }
+  } catch {
+    // Return fallback on AI timeout or failure
+  }
+
+  userAffirmationCache.set(cacheKey, fallback);
+  return fallback;
+}
+
 affirmationsRouter.get("/today", async (req: Request, res: Response): Promise<void> => {
   const user = req.user || (await User.findById(req.userId));
-  const tz = user?.timezone || "Asia/Kolkata";
-  const { text, dateStr } = getDailyAffirmation(tz);
+  if (!user) {
+    res.status(401).json({ error: { code: "UNAUTHORIZED", message: "User not found" } });
+    return;
+  }
+
+  const { text, dateStr } = await getPersonalizedDailyAffirmation(user);
 
   res.json({
     text,

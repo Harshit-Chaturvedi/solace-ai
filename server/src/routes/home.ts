@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { requireAuth } from "../middleware/auth.js";
 import { User } from "../models/User.js";
 import { formatLocalDate } from "../services/streak.js";
-import { getDailyAffirmation } from "./affirmations.js";
+import { getPersonalizedDailyAffirmation } from "./affirmations.js";
 
 export const homeRouter = Router();
 
@@ -67,7 +67,8 @@ homeRouter.get("/", async (req: Request, res: Response): Promise<void> => {
   }
 
   // Affirmation of the day from single unified source
-  const affirmation = getDailyAffirmation(userTz).text;
+  const affirmationObj = await getPersonalizedDailyAffirmation(user);
+  const affirmation = affirmationObj.text;
 
   // Tailored suggestion
   interface Suggestion {
