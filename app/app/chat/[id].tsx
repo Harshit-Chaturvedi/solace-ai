@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { View, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Alert, TouchableOpacity } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNetInfo } from "@react-native-community/netinfo";
 import { Screen, Text } from "../../src/components/ui/index.js";
@@ -39,11 +39,19 @@ export default function ChatScreen(): React.JSX.Element {
   const [isRenameOpen, setIsRenameOpen] = useState(false);
   const [optimisticMessages, setOptimisticMessages] = useState<ChatMessage[]>([]);
 
-  const { data: serverMessages = [], isLoading } = useQuery({
+  const { data: serverMessages = [], isLoading, refetch } = useQuery({
     queryKey: ["messages", conversationId],
     queryFn: () => getMessages(conversationId),
     enabled: !!conversationId,
   });
+
+  useFocusEffect(
+    useCallback(() => {
+      if (conversationId) {
+        refetch();
+      }
+    }, [conversationId, refetch])
+  );
 
   const sendMutation = useMutation({
     mutationFn: (text: string) => sendMessage(conversationId, text),
@@ -76,7 +84,15 @@ export default function ChatScreen(): React.JSX.Element {
   });
 
   const allMessages = useMemo(() => {
-    return [...serverMessages, ...optimisticMessages];
+    const pending = optimisticMessages.filter(
+      (opt) =>
+        !serverMessages.some(
+          (sm) =>
+            sm.content === opt.content &&
+            (sm.role === "user" || sm.sender === "user")
+        )
+    );
+    return [...serverMessages, ...pending];
   }, [serverMessages, optimisticMessages]);
 
   const invertedMessages = useMemo(() => {
@@ -85,7 +101,24 @@ export default function ChatScreen(): React.JSX.Element {
 
   const handleSend = (text: string) => sendMutation.mutate(text);
 
-  const handleRetry = (text: string) => {
+  const handleRetry = async (text: string) => {
+    try {
+      const latest = await queryClient.fetchQuery({
+        queryKey: ["messages", conversationId],
+        queryFn: () => getMessages(conversationId),
+      });
+      const alreadySaved = latest.some(
+        (m) =>
+          (m.role === "user" || m.sender === "user") && m.content === text
+      );
+      if (alreadySaved) {
+        setOptimisticMessages((prev) => prev.filter((m) => m.content !== text));
+        queryClient.invalidateQueries({ queryKey: ["conversations"] });
+        return;
+      }
+    } catch {
+      // pre-fetch failed, continue with retry
+    }
     setOptimisticMessages((prev) => prev.filter((m) => m.content !== text));
     sendMutation.mutate(text);
   };

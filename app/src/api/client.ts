@@ -41,14 +41,19 @@ export async function clearStoredToken(): Promise<void> {
 const BASE_URL =
   process.env.EXPO_PUBLIC_API_URL || "http://localhost:4000/api/v1";
 
+export interface ApiClientOptions extends RequestInit {
+  timeoutMs?: number;
+}
+
 export async function apiClient<T>(
   path: string,
-  options: RequestInit = {},
+  options: ApiClientOptions = {},
 ): Promise<T> {
+  const { timeoutMs = 30000, ...fetchOptions } = options;
   const token = await getStoredToken();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...(options.headers as Record<string, string>),
+    ...(fetchOptions.headers as Record<string, string>),
   };
 
   if (token) {
@@ -59,21 +64,29 @@ export async function apiClient<T>(
   const url = `${BASE_URL.replace(/\/$/, "")}${normalizedPath}`;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 20000);
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   let res: Response;
   try {
     res = await fetch(url, {
-      ...options,
+      ...fetchOptions,
       headers,
-      signal: options.signal || controller.signal,
+      signal: fetchOptions.signal || controller.signal,
     });
   } catch (err: unknown) {
     clearTimeout(timeoutId);
     if ((err as Error)?.name === "AbortError") {
-      throw new ApiError("TIMEOUT", "Request timed out. Please check your connection.", 408);
+      throw new ApiError(
+        "TIMEOUT",
+        "Sol is taking longer than usual. Please try again.",
+        408,
+      );
     }
-    throw new ApiError("NETWORK_ERROR", (err as Error)?.message || "Network request failed", 0);
+    throw new ApiError(
+      "NETWORK_ERROR",
+      (err as Error)?.message || "Network request failed",
+      0,
+    );
   } finally {
     clearTimeout(timeoutId);
   }

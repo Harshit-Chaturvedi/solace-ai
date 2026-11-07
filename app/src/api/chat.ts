@@ -60,6 +60,7 @@ export async function sendMessage(
     {
       method: 'POST',
       body: JSON.stringify({ content }),
+      timeoutMs: 45000,
     }
   );
 }

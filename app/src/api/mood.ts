@@ -28,6 +28,7 @@ export async function submitCheckin(payload: {
   return apiClient<PostMoodResponse>("/moods", {
     method: "POST",
     body: JSON.stringify(payload),
+    timeoutMs: 45000,
   });
 }
 

@@ -32,6 +32,7 @@ export async function signup(payload: {
   return apiClient<AuthResponse>("/auth/signup", {
     method: "POST",
     body: JSON.stringify(payload),
+    timeoutMs: 60000,
   });
 }
 
@@ -42,12 +43,14 @@ export async function login(payload: {
   return apiClient<AuthResponse>("/auth/login", {
     method: "POST",
     body: JSON.stringify(payload),
+    timeoutMs: 60000,
   });
 }
 
 export async function getMe(): Promise<UserProfile> {
   return apiClient<UserProfile>("/me", {
     method: "GET",
+    timeoutMs: 60000,
   });
 }
 

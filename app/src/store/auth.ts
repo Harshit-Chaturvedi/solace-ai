@@ -43,7 +43,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             break;
           }
           if (attempt < 3) {
-            await new Promise((r) => setTimeout(r, 3000));
+            await new Promise((r) => setTimeout(r, 2000));
           }
         }
       }
