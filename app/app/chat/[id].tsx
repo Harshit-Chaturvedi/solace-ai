@@ -15,6 +15,7 @@ import { Text } from "../../src/components/ui/Text.js";
 import { MessageBubble } from "../../src/components/chat/MessageBubble.js";
 import { Composer } from "../../src/components/chat/Composer.js";
 import { TypingSol } from "../../src/components/Sol/TypingSol.js";
+import { RenameModal } from "../../src/components/chat/RenameModal.js";
 import { ChatHeader } from "../../src/components/chat/ChatHeader.js";
 import {
   getMessages,
@@ -40,6 +41,7 @@ export default function ChatScreen(): React.JSX.Element {
   const conversationId = params.id;
 
   const [title, setTitle] = useState(params.title || "Conversation");
+  const [isRenameOpen, setIsRenameOpen] = useState(false);
   const [optimisticMessages, setOptimisticMessages] = useState<MessageItem[]>([]);
 
   const { data: serverMessages = [], isLoading } = useQuery({
@@ -89,20 +91,14 @@ export default function ChatScreen(): React.JSX.Element {
   };
 
   const handleRename = () => {
-    Alert.prompt
-      ? Alert.prompt("Rename Chat", "Enter a new title:", [
-          { text: "Cancel", style: "cancel" },
-          {
-            text: "Save",
-            onPress: async (newTitle?: string) => {
-              if (!newTitle?.trim()) return;
-              setTitle(newTitle.trim());
-              await renameConversation(conversationId, newTitle.trim());
-              queryClient.invalidateQueries({ queryKey: ["conversations"] });
-            },
-          },
-        ])
-      : undefined;
+    setIsRenameOpen(true);
+  };
+
+  const handleSaveRename = async (newTitle: string) => {
+    setIsRenameOpen(false);
+    setTitle(newTitle);
+    await renameConversation(conversationId, newTitle);
+    queryClient.invalidateQueries({ queryKey: ["conversations"] });
   };
 
   const handleDelete = () => {
@@ -185,6 +181,12 @@ export default function ChatScreen(): React.JSX.Element {
 
         <Composer onSend={handleSend} disabled={sendMutation.isPending} />
       </KeyboardAvoidingView>
+      <RenameModal
+        visible={isRenameOpen}
+        initialTitle={title}
+        onClose={() => setIsRenameOpen(false)}
+        onSave={handleSaveRename}
+      />
     </Screen>
   );
 }

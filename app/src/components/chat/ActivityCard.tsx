@@ -16,18 +16,17 @@ export function ActivityCard({ suggestion }: ActivityCardProps): React.JSX.Eleme
 
   const handlePress = () => {
     haptics.select();
+    const p = suggestion.params || suggestion.payload;
     switch (suggestion.type) {
-      case "breathing": {
-        const pattern = (suggestion.payload?.pattern as string) || "box";
-        const minutes = (suggestion.payload?.minutes as number) || 2;
+      case "breathing":
+      case "breathe": {
+        const pattern = (p?.pattern as string) || "box";
+        const minutes = (p?.minutes as number) || 2;
         router.push(`/breathe?pattern=${pattern}&minutes=${minutes}` as any); // expo-router route
         break;
       }
       case "affirmation":
         router.push("/affirmation" as any); // expo-router route
-        break;
-      case "journal":
-        router.push("/journal" as any); // expo-router route
         break;
       case "checkin":
         router.push("/checkin" as any); // expo-router route
@@ -40,11 +39,10 @@ export function ActivityCard({ suggestion }: ActivityCardProps): React.JSX.Eleme
   const getBadgeLabel = () => {
     switch (suggestion.type) {
       case "breathing":
+      case "breathe":
         return "Breathing Exercise";
       case "affirmation":
         return "Daily Affirmation";
-      case "journal":
-        return "Journal Prompt";
       case "checkin":
         return "Daily Check-in";
       default:

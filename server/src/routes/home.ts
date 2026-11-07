@@ -110,7 +110,7 @@ homeRouter.get("/", async (req: Request, res: Response): Promise<void> => {
   const quickActions = [
     { id: "chat", title: "Talk to Sol", route: "/chat/new" },
     { id: "breathe", title: "Breathe", route: "/breathe" },
-    { id: "reflect", title: "Reflect", route: "/journal" },
+    { id: "reflect", title: "Reflect", route: "/chat/new?seed=I%20want%20to%20reflect%20on%20my%20day" },
     { id: "reminders", title: "Plan", route: "/reminders" },
   ];
 

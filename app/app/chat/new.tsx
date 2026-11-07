@@ -15,6 +15,7 @@ export default function NewChatScreen(): React.JSX.Element {
     mood?: string;
     note?: string;
     firstMessage?: string;
+    seed?: string;
   }>();
 
   const [error, setError] = useState<string | null>(null);
@@ -22,10 +23,13 @@ export default function NewChatScreen(): React.JSX.Element {
   const initChat = async () => {
     try {
       setError(null);
-      const seed = params.mood ? { mood: params.mood, note: params.note } : undefined;
+      let seedText: string | undefined = params.seed;
+      if (!seedText && params.mood) {
+        seedText = `I felt ${params.mood}${params.note ? ` (${params.note})` : ""}`;
+      }
       const conv = await createConversation({
         firstMessage: params.firstMessage,
-        seed,
+        seed: seedText,
       });
       router.replace(`/chat/${conv._id}` as any); // expo-router route
     } catch {

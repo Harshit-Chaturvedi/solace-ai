@@ -1,9 +1,10 @@
 import { apiClient } from './client';
 
 export interface ActivitySuggestion {
-  type: 'breathing' | 'affirmation' | 'journal' | 'checkin';
+  type: 'breathing' | 'breathe' | 'affirmation' | 'checkin' | 'crisis';
   title?: string;
   description?: string;
+  params?: Record<string, unknown>;
   payload?: Record<string, unknown>;
 }
 
@@ -29,7 +30,7 @@ export interface ConversationItem {
 
 export interface CreateConversationInput {
   firstMessage?: string;
-  seed?: {
+  seed?: string | {
     mood: string;
     note?: string;
   };
