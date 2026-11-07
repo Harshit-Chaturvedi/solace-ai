@@ -30,8 +30,23 @@ export async function generateJSON<T>(opts: {
       },
     });
 
-    const text = response.text || "{}";
-    return JSON.parse(text) as T;
+    const rawText = (response.text || "").trim();
+    if (!rawText) {
+      return {} as T;
+    }
+    try {
+      return JSON.parse(rawText) as T;
+    } catch {
+      const match = rawText.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+      if (match) {
+        try {
+          return JSON.parse(match[0]) as T;
+        } catch {
+          // fall through
+        }
+      }
+      return {} as T;
+    }
   } catch (err) {
     console.warn("Gemini AI generation warning/fallback:", (err as Error)?.message);
     throw err;
