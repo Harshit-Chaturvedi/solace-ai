@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import Animated, {
@@ -12,6 +12,21 @@ import { SolMascot } from "../src/components/Sol/index.js";
 import { colors, spacing } from "../src/theme/index.js";
 import { useAuthStore } from "../src/store/auth.js";
 import { pendingLink } from "../src/lib/pendingLink.js";
+
+async function checkOnboardingSeen(): Promise<boolean> {
+  try {
+    if (Platform.OS === "web") {
+      return (
+        typeof window !== "undefined" &&
+        Boolean(window.localStorage.getItem("onboardingSeen"))
+      );
+    }
+    const seen = await SecureStore.getItemAsync("onboardingSeen");
+    return Boolean(seen);
+  } catch {
+    return false;
+  }
+}
 
 export default function SplashScreen() {
   const router = useRouter();
@@ -27,15 +42,23 @@ export default function SplashScreen() {
     scale.value = withTiming(1, { duration: 600 });
     hydrate();
 
-    SecureStore.getItemAsync("onboardingSeen")
-      .then((seen) => setHasSeenOnboarding(Boolean(seen)))
+    checkOnboardingSeen()
+      .then((seen) => setHasSeenOnboarding(seen))
       .catch(() => {});
 
     const timer = setTimeout(() => {
       setMinTimeElapsed(true);
     }, 1600);
 
-    return () => clearTimeout(timer);
+    const hardCapTimer = setTimeout(() => {
+      useAuthStore.setState({ status: "unauthenticated" });
+      setMinTimeElapsed(true);
+    }, 25000);
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(hardCapTimer);
+    };
   }, [hydrate, opacity, scale]);
 
   useEffect(() => {

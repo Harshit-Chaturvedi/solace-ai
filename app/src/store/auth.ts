@@ -1,6 +1,8 @@
+import { Platform } from "react-native";
 import { create } from "zustand";
 import * as SecureStore from "expo-secure-store";
 import { getMe, type UserProfile } from "../api/auth.js";
+import { getStoredToken, setStoredToken, clearStoredToken } from "../api/client.js";
 
 const TOKEN_KEY = "solace_jwt_token";
 
@@ -23,7 +25,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   hydrate: async () => {
     try {
-      const token = await SecureStore.getItemAsync(TOKEN_KEY);
+      const token = await getStoredToken();
       if (!token) {
         set({ status: "unauthenticated", token: null, user: null });
         return;
@@ -53,7 +55,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       } else {
         if (isUnauthorized) {
           try {
-            await SecureStore.deleteItemAsync(TOKEN_KEY);
+            await clearStoredToken();
           } catch {
             // secure store error
           }
@@ -67,7 +69,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   setAuth: async (token: string, user: UserProfile) => {
     try {
-      await SecureStore.setItemAsync(TOKEN_KEY, token);
+      await setStoredToken(token);
     } catch {
       // secure store error
     }
@@ -80,7 +82,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: async () => {
     try {
-      await SecureStore.deleteItemAsync(TOKEN_KEY);
+      await clearStoredToken();
     } catch {
       // secure store error
     }

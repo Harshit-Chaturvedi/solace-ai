@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { Platform } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as Notifications from "expo-notifications";
@@ -76,6 +77,8 @@ export default function RootLayout(): React.JSX.Element | null {
   }, [authStatus]);
 
   useEffect(() => {
+    if (Platform.OS === "web") return;
+
     const handleNotificationUrl = (url: string) => {
       const auth = useAuthStore.getState();
       if (auth.status !== "authenticated" || pendingLink.isSplashActive()) {
@@ -86,12 +89,14 @@ export default function RootLayout(): React.JSX.Element | null {
     };
 
     // Handle cold start from killed app
-    Notifications.getLastNotificationResponseAsync().then((response) => {
-      const url = response?.notification?.request?.content?.data?.url;
-      if (typeof url === "string" && url.length > 0) {
-        handleNotificationUrl(url);
-      }
-    });
+    Notifications.getLastNotificationResponseAsync()
+      .then((response) => {
+        const url = response?.notification?.request?.content?.data?.url;
+        if (typeof url === "string" && url.length > 0) {
+          handleNotificationUrl(url);
+        }
+      })
+      .catch(() => {});
 
     // Handle background / running app response
     const subscription = Notifications.addNotificationResponseReceivedListener(

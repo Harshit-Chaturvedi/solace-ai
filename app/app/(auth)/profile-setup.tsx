@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert, ScrollView, StyleSheet, View } from "react-native";
+import { Alert, Platform, ScrollView, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Screen, Text } from "../../src/components/ui/index.js";
 import { SolMascot } from "../../src/components/Sol/index.js";
@@ -54,8 +54,11 @@ export default function ProfileSetupScreen() {
       setUser(updated);
       let granted = false;
       try {
-        granted = await new Promise<boolean>((resolve) => {
-          Alert.alert(
+        if (Platform.OS === "web") {
+          granted = false;
+        } else {
+          granted = await new Promise<boolean>((resolve) => {
+            Alert.alert(
             "Gentle reminders",
             "Allow notifications so Sol can check in with you?",
             [
@@ -70,7 +73,8 @@ export default function ProfileSetupScreen() {
             ],
             { cancelable: false },
           );
-        });
+          });
+        }
       } catch {
         granted = false;
       }

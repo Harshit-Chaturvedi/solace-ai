@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import {
+  Platform,
   Dimensions,
   FlatList,
   Pressable,
@@ -50,6 +51,18 @@ const slides: Slide[] = [
   },
 ];
 
+const markOnboardingSeen = () => {
+  if (Platform.OS === "web") {
+    try {
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("onboardingSeen", "true");
+      }
+    } catch {}
+    return;
+  }
+  markOnboardingSeen();
+};
+
 export default function OnboardingScreen() {
   const router = useRouter();
   const [activeIndex, setActiveIndex] = useState(0);
@@ -71,13 +84,13 @@ export default function OnboardingScreen() {
         animated: true,
       });
     } else {
-      SecureStore.setItemAsync("onboardingSeen", "true").catch(() => {});
+      markOnboardingSeen();
       router.push("/(auth)/signup");
     }
   };
 
   const handleSkip = () => {
-    SecureStore.setItemAsync("onboardingSeen", "true").catch(() => {});
+    markOnboardingSeen();
     router.push("/(auth)/signup");
   };
 
