@@ -1,14 +1,15 @@
 {
   "expo": {
     "name": "Solace",
-    "slug": "app",
+    "slug": "solace-ai",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "solace",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/images/icon.png",
+      "bundleIdentifier": "com.solace.ai"
     },
     "android": {
       "package": "com.solace.ai",

@@ -10,11 +10,7 @@ import { TypingSol } from "../../src/components/Sol/TypingSol.js";
 import { RenameModal } from "../../src/components/chat/RenameModal.js";
 import { ChatHeader } from "../../src/components/chat/ChatHeader.js";
 import {
-  getMessages,
-  sendMessage,
-  renameConversation,
-  deleteConversation,
-  MessageItem,
+  getMessages, sendMessage, renameConversation, deleteConversation, MessageItem,
 } from "../../src/api/chat.js";
 import { colors, spacing, radius } from "../../src/theme/index.js";
 import { haptics } from "../../src/lib/haptics.js";
@@ -124,10 +120,16 @@ export default function ChatScreen(): React.JSX.Element {
   };
 
   const handleSaveRename = async (newTitle: string) => {
+    const oldTitle = title;
     setIsRenameOpen(false);
     setTitle(newTitle);
-    await renameConversation(conversationId, newTitle);
-    queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    try {
+      await renameConversation(conversationId, newTitle);
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    } catch {
+      setTitle(oldTitle);
+      Alert.alert("Error", "Could not rename conversation. Please try again.");
+    }
   };
 
   const handleDelete = () => {
@@ -138,9 +140,13 @@ export default function ChatScreen(): React.JSX.Element {
         text: "Delete",
         style: "destructive",
         onPress: async () => {
-          await deleteConversation(conversationId);
-          queryClient.invalidateQueries({ queryKey: ["conversations"] });
-          router.replace("/(tabs)/chat" as any); // expo-router route
+          try {
+            await deleteConversation(conversationId);
+            queryClient.invalidateQueries({ queryKey: ["conversations"] });
+            router.replace("/(tabs)/chat" as any); // expo-router route
+          } catch {
+            Alert.alert("Error", "Could not delete conversation. Please try again.");
+          }
         },
       },
     ]);
@@ -156,16 +162,16 @@ export default function ChatScreen(): React.JSX.Element {
   }, [allMessages]);
 
   return (
-    <Screen noPadding style={styles.screen}>
+    <Screen noPadding edges={["top", "left", "right", "bottom"]} style={styles.screen}>
       <ChatHeader
         title={title}
-        onRename={Platform.OS === "ios" ? () => setIsRenameOpen(true) : undefined}
+        onRename={() => setIsRenameOpen(true)}
         onDelete={handleDelete}
       />
 
       <KeyboardAvoidingView
         style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior="padding"
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
         <FlatList

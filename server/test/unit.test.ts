@@ -64,10 +64,12 @@ test("Safety - benign phrases are NOT flagged", () => {
   const benign1 = checkCrisis("tension mein marna padega");
   const benign2 = checkCrisis("overdose on coffee lol");
   const benign3 = checkCrisis("This workout is killing me haha");
+  const benign4 = checkCrisis("this deadline is killing me");
 
   assert.equal(benign1.isCrisis, false);
   assert.equal(benign2.isCrisis, false);
   assert.equal(benign3.isCrisis, false);
+  assert.equal(benign4.isCrisis, false);
 });
 
 test("Safety - crisis phrases ARE flagged", () => {
@@ -75,11 +77,19 @@ test("Safety - crisis phrases ARE flagged", () => {
   const c2 = checkCrisis("Sab khatam kar dena chahta hoon");
   const c3 = checkCrisis("jeena nahi chahta");
   const c4 = checkCrisis("I want to kill myself");
+  const c5 = checkCrisis("I feel suicidal");
+  const c6 = checkCrisis("self-harm");
+  const c7 = checkCrisis("I don\u2019t want to be here anymore");
+  const c8 = checkCrisis("mar jaunga");
 
   assert.equal(c1.isCrisis, true);
   assert.equal(c2.isCrisis, true);
   assert.equal(c3.isCrisis, true);
   assert.equal(c4.isCrisis, true);
+  assert.equal(c5.isCrisis, true);
+  assert.equal(c6.isCrisis, true);
+  assert.equal(c7.isCrisis, true);
+  assert.equal(c8.isCrisis, true);
   assert.ok(c1.reply && c1.reply.includes("14416"));
 });
 

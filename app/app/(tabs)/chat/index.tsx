@@ -101,7 +101,10 @@ export default function ChatListScreen(): React.JSX.Element {
           style={styles.itemCard}
           onPress={() => {
             haptics.select();
-            router.push(`/chat/${item._id}` as any); // expo-router route
+            router.push({
+              pathname: "/chat/[id]",
+              params: { id: item._id, title: item.title },
+            } as any); // expo-router route
           }}
           activeOpacity={0.7}
         >

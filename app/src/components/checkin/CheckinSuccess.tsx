@@ -3,17 +3,29 @@ import { StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Button, Card, Text } from "../ui/index.js";
 import { SolMascot } from "../Sol/index.js";
+import { SupportCard } from "../chat/SupportCard.js";
 import { colors, spacing } from "../../theme/index.js";
 import type { PostMoodResponse } from "../../api/mood.js";
 
 export function CheckinSuccess({
   result,
   tint,
+  mood,
+  note,
 }: {
   result: PostMoodResponse | null;
   tint?: string;
+  mood?: string;
+  note?: string;
 }) {
   const router = useRouter();
+
+  const handleTalkWithSol = () => {
+    const params: Record<string, string> = {};
+    if (mood) params.mood = mood;
+    if (note && note.trim()) params.note = note.trim();
+    router.replace({ pathname: "/chat/new", params } as any); // expo-router route
+  };
 
   return (
     <View style={styles.successContainer}>
@@ -29,6 +41,12 @@ export function CheckinSuccess({
         </Text>
       </View>
 
+      {result?.flagged === "crisis" ? (
+        <View style={styles.supportContainer}>
+          <SupportCard />
+        </View>
+      ) : null}
+
       {result?.solReply ? (
         <Card style={styles.solBubble}>
           <Text variant="body" color={colors.primary}>
@@ -39,7 +57,7 @@ export function CheckinSuccess({
 
       <Button
         title="Talk about it with Sol"
-        onPress={() => router.replace("/(tabs)/home")}
+        onPress={handleTalkWithSol}
         style={styles.actionBtn}
       />
       <Button
@@ -58,29 +76,37 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xl,
   },
   successTitle: {
-    marginTop: spacing.lg,
-    marginBottom: spacing.md,
+    marginTop: spacing.md,
+    marginBottom: spacing.xs,
   },
   streakBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.primarySoft,
-    paddingHorizontal: spacing.base,
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
-    borderRadius: spacing.xl,
-    marginBottom: spacing.xl,
+    borderRadius: 20,
+    marginTop: spacing.xs,
+    marginBottom: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.primarySoft,
   },
   streakBadgeText: {
     marginLeft: spacing.xs,
   },
+  supportContainer: {
+    width: "100%",
+    marginBottom: spacing.md,
+  },
   solBubble: {
     width: "100%",
-    backgroundColor: colors.primarySoft,
     marginBottom: spacing.xl,
+    padding: spacing.md,
+    backgroundColor: colors.primarySoft,
   },
   actionBtn: {
     width: "100%",
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
   },
   secondaryBtn: {
     width: "100%",

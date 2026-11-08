@@ -183,6 +183,8 @@ export default function CheckinScreen() {
           <CheckinSuccess
             result={result}
             tint={moodConfig[selectedMood].tint}
+            mood={selectedMood}
+            note={note}
           />
         )}
       </ScrollView>

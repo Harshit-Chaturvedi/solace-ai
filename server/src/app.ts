@@ -19,11 +19,14 @@ import { insightsRouter } from "./routes/insights.js";
 import { errorHandler } from "./middleware/error.js";
 
 export const app = express();
+app.set("trust proxy", 1);
 
 app.use(helmet());
 app.use(cors(env.CORS_ORIGIN ? { origin: env.CORS_ORIGIN } : undefined));
 app.use(express.json());
 app.use(morgan("dev"));
+
+app.get("/ping", (_req, res) => res.json({ ok: true }));
 
 const healthHandler = async (_req: Request, res: Response) => {
   const isDbConnected = mongoose.connection.readyState === 1;

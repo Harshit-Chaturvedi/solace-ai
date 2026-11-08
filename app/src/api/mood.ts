@@ -17,6 +17,7 @@ export interface PostMoodResponse {
     longest: number;
   };
   solReply: string;
+  flagged?: "crisis" | null;
   achievementsUnlocked: string[];
 }
 

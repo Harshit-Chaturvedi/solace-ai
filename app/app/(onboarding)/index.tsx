@@ -60,7 +60,7 @@ const markOnboardingSeen = () => {
     } catch {}
     return;
   }
-  markOnboardingSeen();
+  SecureStore.setItemAsync("onboardingSeen", "true").catch(() => {});
 };
 
 export default function OnboardingScreen() {

@@ -8,10 +8,18 @@ import { Text } from "../src/components/ui/Text.js";
 import { Button } from "../src/components/ui/Button.js";
 import { EmptyState } from "../src/components/ui/EmptyState.js";
 import { getMemories, deleteMemory, clearAllMemories, MemoryItem } from "../src/api/memories.js";
-import { getMe, updateMe } from "../src/api/auth.js";
+import { getMe, updateMe, type UserProfile } from "../src/api/auth.js";
 import { colors } from "../src/theme/colors.js";
 import { spacing, radius } from "../src/theme/spacing.js";
 import { haptics } from "../src/lib/haptics.js";
+
+const CATEGORY_LABELS: Record<string, string> = {
+  life_event: "Life event",
+  preference: "Preference",
+  struggle: "Struggle",
+  goal: "Goal",
+  person: "Person",
+};
 
 export default function MemoriesScreen(): React.JSX.Element {
   const router = useRouter();
@@ -29,9 +37,22 @@ export default function MemoriesScreen(): React.JSX.Element {
 
   const toggleConsentMutation = useMutation({
     mutationFn: (memoryEnabled: boolean) => updateMe({ memoryEnabled }),
+    onMutate: async (memoryEnabled: boolean) => {
+      await queryClient.cancelQueries({ queryKey: ["me"] });
+      const previousUser = queryClient.getQueryData<UserProfile>(["me"]);
+      if (previousUser) {
+        queryClient.setQueryData(["me"], { ...previousUser, memoryEnabled });
+      }
+      haptics.tap();
+      return { previousUser };
+    },
+    onError: (_err, _val, context) => {
+      if (context?.previousUser) {
+        queryClient.setQueryData(["me"], context.previousUser);
+      }
+    },
     onSuccess: (updated) => {
       queryClient.setQueryData(["me"], updated);
-      haptics.tap();
     },
   });
 
@@ -133,10 +154,10 @@ export default function MemoriesScreen(): React.JSX.Element {
             <View style={styles.memoryCard}>
               <View style={styles.memoryContent}>
                 <Text variant="caption" color={colors.primary} style={styles.categoryBadge}>
-                  {item.category || "Insight"}
+                  {CATEGORY_LABELS[item.category || ""] || "Insight"}
                 </Text>
                 <Text variant="body" color={colors.ink}>
-                  {item.value}
+                  {item.text}
                 </Text>
               </View>
               <TouchableOpacity

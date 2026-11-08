@@ -1,10 +1,51 @@
 import { Platform } from "react-native";
 import { create } from "zustand";
 import * as SecureStore from "expo-secure-store";
+import * as Notifications from "expo-notifications";
 import { getMe, type UserProfile } from "../api/auth.js";
 import { getStoredToken, setStoredToken, clearStoredToken } from "../api/client.js";
+import { queryClient } from "../lib/queryClient.js";
 
-const TOKEN_KEY = "solace_jwt_token";
+const USER_KEY = "solace_user";
+
+async function getStoredUser(): Promise<UserProfile | null> {
+  try {
+    let raw: string | null = null;
+    if (Platform.OS === "web") {
+      raw = typeof window !== "undefined" ? window.localStorage.getItem(USER_KEY) : null;
+    } else {
+      raw = await SecureStore.getItemAsync(USER_KEY);
+    }
+    return raw ? (JSON.parse(raw) as UserProfile) : null;
+  } catch {
+    return null;
+  }
+}
+
+async function setStoredUser(user: UserProfile): Promise<void> {
+  try {
+    const raw = JSON.stringify(user);
+    if (Platform.OS === "web") {
+      if (typeof window !== "undefined") window.localStorage.setItem(USER_KEY, raw);
+      return;
+    }
+    await SecureStore.setItemAsync(USER_KEY, raw);
+  } catch {
+    // ignore
+  }
+}
+
+async function clearStoredUser(): Promise<void> {
+  try {
+    if (Platform.OS === "web") {
+      if (typeof window !== "undefined") window.localStorage.removeItem(USER_KEY);
+      return;
+    }
+    await SecureStore.deleteItemAsync(USER_KEY);
+  } catch {
+    // ignore
+  }
+}
 
 export type AuthStatus = "loading" | "authenticated" | "unauthenticated";
 
@@ -31,36 +72,26 @@ export const useAuthStore = create<AuthState>((set) => ({
         return;
       }
 
-      let user: UserProfile | null = null;
-      let isUnauthorized = false;
-
-      for (let attempt = 1; attempt <= 3; attempt++) {
-        try {
-          user = await getMe();
-          break;
-        } catch (err: unknown) {
-          const apiErr = err as { status?: number };
-          if (apiErr?.status === 401) {
-            isUnauthorized = true;
-            break;
-          }
-          if (attempt < 3) {
-            await new Promise((r) => setTimeout(r, 2000));
-          }
-        }
+      const cachedUser = await getStoredUser();
+      if (cachedUser) {
+        set({ status: "authenticated", token, user: cachedUser });
       }
 
-      if (user) {
-        set({ status: "authenticated", token, user });
-      } else {
-        if (isUnauthorized) {
-          try {
-            await clearStoredToken();
-          } catch {
-            // secure store error
+      try {
+        const freshUser = await getMe();
+        await setStoredUser(freshUser);
+        set({ status: "authenticated", token, user: freshUser });
+      } catch (err: unknown) {
+        const apiErr = err as { status?: number };
+        if (apiErr?.status === 401) {
+          await clearStoredToken();
+          await clearStoredUser();
+          set({ status: "unauthenticated", token: null, user: null });
+        } else {
+          if (!cachedUser) {
+            set({ status: "unauthenticated", token: null, user: null });
           }
         }
-        set({ status: "unauthenticated", token: null, user: null });
       }
     } catch {
       set({ status: "unauthenticated", token: null, user: null });
@@ -68,8 +99,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   setAuth: async (token: string, user: UserProfile) => {
+    queryClient.clear();
     try {
       await setStoredToken(token);
+      await setStoredUser(user);
     } catch {
       // secure store error
     }
@@ -77,15 +110,23 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   setUser: (user: UserProfile) => {
+    setStoredUser(user).catch(() => {});
     set({ user });
   },
 
   logout: async () => {
     try {
       await clearStoredToken();
+      await clearStoredUser();
     } catch {
       // secure store error
     }
+    try {
+      await Notifications.cancelAllScheduledNotificationsAsync();
+    } catch {
+      // notification cancel error
+    }
+    queryClient.clear();
     set({ status: "unauthenticated", token: null, user: null });
   },
 }));

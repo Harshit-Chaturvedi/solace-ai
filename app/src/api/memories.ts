@@ -3,9 +3,9 @@ import { apiClient } from './client.js';
 export interface MemoryItem {
   _id: string;
   userId: string;
-  key: string;
-  value: string;
+  text: string;
   category?: string;
+  importance?: number;
   createdAt: string;
   updatedAt: string;
 }

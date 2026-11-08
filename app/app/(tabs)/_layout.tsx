@@ -1,5 +1,6 @@
 import React from "react";
 import { Tabs } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, Path } from "react-native-svg";
 import { colors, typography } from "../../src/theme/index.js";
 
@@ -49,6 +50,7 @@ function ProfileIcon({ color }: { color: string }) {
 }
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
   return (
     <Tabs
       screenOptions={{
@@ -58,9 +60,9 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.primarySoft,
-          height: 64,
-          paddingBottom: 8,
-          paddingTop: 8,
+          height: 58 + insets.bottom,
+          paddingBottom: Math.max(insets.bottom, 8),
+          paddingTop: 6,
         },
         tabBarLabelStyle: {
           fontFamily: typography.fonts.bodyMedium,

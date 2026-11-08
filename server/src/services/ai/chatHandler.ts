@@ -88,6 +88,10 @@ export async function processUserMessage(opts: {
       "I'm here with you right now. Take your time, whenever you feel ready to share more.";
   }
 
+  if (isFlaggedCrisis || (suggestion as { type?: string } | null)?.type === "crisis") {
+    suggestion = null;
+  }
+
   const assistantMessage = await Message.create({
     conversationId: convId,
     userId,

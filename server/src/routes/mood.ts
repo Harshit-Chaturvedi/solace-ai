@@ -6,6 +6,7 @@ import { validateBody } from "../middleware/validate.js";
 import { Mood, moodScoreMap, type MoodType } from "../models/Mood.js";
 import { User } from "../models/User.js";
 import { calculateNewStreak } from "../services/streak.js";
+import { checkCrisis } from "../services/ai/safety.js";
 
 export const moodRouter = Router();
 
@@ -47,7 +48,15 @@ moodRouter.post(
       return;
     }
 
-    const solReply = getWarmSolReply(mood as MoodType);
+    let solReply = getWarmSolReply(mood as MoodType);
+    let flagged: "crisis" | null = null;
+    if (note) {
+      const crisis = checkCrisis(note);
+      if (crisis.isCrisis && crisis.reply) {
+        solReply = crisis.reply;
+        flagged = "crisis";
+      }
+    }
     const newStreak = calculateNewStreak(user.streak, user.timezone);
 
     user.streak = newStreak;
@@ -67,6 +76,7 @@ moodRouter.post(
       mood: moodDoc,
       streak: newStreak,
       solReply,
+      flagged,
       achievementsUnlocked: [],
     });
   },

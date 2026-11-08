@@ -51,9 +51,11 @@ export default function SplashScreen() {
     }, 1600);
 
     const hardCapTimer = setTimeout(() => {
-      useAuthStore.setState({ status: "unauthenticated" });
-      setMinTimeElapsed(true);
-    }, 25000);
+      if (useAuthStore.getState().status === "loading") {
+        useAuthStore.setState({ status: "unauthenticated" });
+        setMinTimeElapsed(true);
+      }
+    }, 70000);
 
     return () => {
       clearTimeout(timer);
