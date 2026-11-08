@@ -21,6 +21,7 @@ export function ChatHeader({ title, onRename, onDelete }: ChatHeaderProps): Reac
     <View style={styles.header}>
       <TouchableOpacity
         style={styles.backButton}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         onPress={() => {
           haptics.tap();
           router.back();
@@ -67,6 +68,7 @@ export function ChatHeader({ title, onRename, onDelete }: ChatHeaderProps): Reac
       {onDelete ? (
         <TouchableOpacity
           style={styles.actionButton}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           onPress={onDelete}
           activeOpacity={0.7}
         >
@@ -98,7 +100,10 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.primarySoft,
   },
   backButton: {
-    padding: spacing.xs,
+    minWidth: 48,
+    minHeight: 48,
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: spacing.xs,
   },
   titleContainer: {
@@ -116,8 +121,8 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   actionButton: {
-    width: 36,
-    height: 36,
+    minWidth: 48,
+    minHeight: 48,
     justifyContent: "center",
     alignItems: "center",
     marginLeft: spacing.xs,

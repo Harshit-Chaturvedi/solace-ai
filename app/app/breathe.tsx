@@ -129,7 +129,12 @@ export default function BreatheScreen(): React.JSX.Element {
   return (
     <Screen style={styles.screen}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleEndEarly} activeOpacity={0.7}>
+        <TouchableOpacity
+          onPress={handleEndEarly}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          style={styles.headerBtn}
+          activeOpacity={0.7}
+        >
           <Text variant="bodyMedium" color={colors.inkSoft}>
             End
           </Text>
@@ -146,9 +151,11 @@ export default function BreatheScreen(): React.JSX.Element {
         </Text>
         <TouchableOpacity
           onPress={() => setIsPaused((p) => !p)}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          style={styles.headerBtn}
           activeOpacity={0.7}
         >
-          <Text variant="bodyMedium" color={colors.primary}>
+          <Text variant="bodyMedium" color={colors.primaryStrong}>
             {isPaused ? "Resume" : "Pause"}
           </Text>
         </TouchableOpacity>
@@ -190,6 +197,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: spacing.sm,
+  },
+  headerBtn: {
+    minWidth: 48,
+    minHeight: 48,
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerTitle: {
     flexShrink: 1,

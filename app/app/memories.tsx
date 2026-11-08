@@ -133,8 +133,8 @@ export default function MemoriesScreen(): React.JSX.Element {
           Saved Memories ({memories.length})
         </Text>
         {memories.length > 0 ? (
-          <TouchableOpacity onPress={handleClearAll} activeOpacity={0.7}>
-            <Text variant="caption" color={colors.danger}>
+          <TouchableOpacity onPress={handleClearAll} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} activeOpacity={0.7}>
+            <Text variant="caption" color={colors.dangerText}>
               Clear all
             </Text>
           </TouchableOpacity>
@@ -163,6 +163,7 @@ export default function MemoriesScreen(): React.JSX.Element {
               <TouchableOpacity
                 onPress={() => deleteSingleMutation.mutate(item._id)}
                 style={styles.deleteBtn}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 activeOpacity={0.7}
               >
                 <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
@@ -195,11 +196,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.primarySoft,
   },
-  backBtn: {
-    width: 36,
-    height: 36,
-    justifyContent: "center",
-  },
+  backBtn: { minWidth: 48, minHeight: 48, justifyContent: "center", alignItems: "center" },
   consentCard: {
     backgroundColor: colors.surface,
     padding: spacing.md,
@@ -242,8 +239,5 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     marginBottom: 2,
   },
-  deleteBtn: {
-    padding: spacing.xs,
-    marginLeft: spacing.sm,
-  },
+  deleteBtn: { minWidth: 48, minHeight: 48, justifyContent: "center", alignItems: "center", marginLeft: spacing.xs },
 });

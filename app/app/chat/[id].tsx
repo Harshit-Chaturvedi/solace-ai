@@ -200,8 +200,8 @@ export default function ChatScreen(): React.JSX.Element {
                   Quick suggestions:
                 </Text>
                 {QUICK_PROMPTS.map((prompt) => (
-                  <TouchableOpacity key={prompt} style={styles.quickChip} onPress={() => handleSend(prompt)}>
-                    <Text variant="caption" color={colors.primary} numberOfLines={2}>
+                  <TouchableOpacity key={prompt} style={styles.quickChip} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => handleSend(prompt)}>
+                    <Text variant="caption" color={colors.primaryStrong} numberOfLines={2}>
                       {prompt}
                     </Text>
                   </TouchableOpacity>
@@ -241,6 +241,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.chip,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
+    minHeight: 48,
+    justifyContent: "center",
     alignSelf: "flex-start",
   },
 });

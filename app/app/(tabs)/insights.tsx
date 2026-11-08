@@ -66,7 +66,7 @@ export default function InsightsScreen(): React.JSX.Element {
             <Text variant="caption" color={colors.inkSoft}>
               Mindful Minutes
             </Text>
-            <Text variant="display" color={colors.mint}>
+            <Text variant="display" color={colors.mintText}>
               {minutes}
             </Text>
             <Text variant="caption" color={colors.inkSoft}>

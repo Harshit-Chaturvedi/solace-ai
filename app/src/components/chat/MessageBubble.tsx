@@ -14,9 +14,12 @@ interface MessageBubbleProps {
   onRetry?: (text: string) => void;
 }
 
+const SESSION_START = Date.now();
+
 export function MessageBubble({ message, isNewest, onRetry }: MessageBubbleProps): React.JSX.Element {
   const isUser = (message.role || message.sender) === "user";
-  const shouldAnimate = !isUser && isNewest;
+  const isRecentInSession = !message.createdAt || new Date(message.createdAt).getTime() >= SESSION_START;
+  const shouldAnimate = !isUser && isNewest && isRecentInSession;
   const [displayedText, setDisplayedText] = useState(shouldAnimate ? "" : message.content);
 
   useEffect(() => {
@@ -120,11 +123,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.card,
   },
   userBubble: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primaryStrong,
     borderBottomRightRadius: 4,
   },
   userBubbleFailed: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primaryStrong,
     borderWidth: 1,
     borderColor: colors.danger,
     borderBottomRightRadius: 4,

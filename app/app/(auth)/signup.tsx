@@ -145,7 +145,7 @@ export default function SignupScreen() {
               Already have an account?{" "}
             </Text>
             <Pressable onPress={() => router.push("/(auth)/login")} hitSlop={8}>
-              <Text variant="bodyBold" color={colors.primary}>
+              <Text variant="bodyBold" color={colors.primaryStrong}>
                 Log In
               </Text>
             </Pressable>

@@ -40,6 +40,7 @@ export default function CheckinScreen() {
   const [selectedEmotions, setSelectedEmotions] = useState<string[]>([]);
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PostMoodResponse | null>(null);
 
   const handleSelectMood = (m: MoodKey) => {
@@ -60,6 +61,7 @@ export default function CheckinScreen() {
 
   const handleSubmit = async () => {
     setLoading(true);
+    setError(null);
     try {
       const res = await submitCheckin({
         mood: selectedMood,
@@ -71,7 +73,7 @@ export default function CheckinScreen() {
       queryClient.invalidateQueries({ queryKey: ["homeData"] });
       setStep("success");
     } catch {
-      // error saving checkin
+      setError("Unable to save your check-in. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -170,6 +172,11 @@ export default function CheckinScreen() {
                   />
                 </Card>
 
+                {error ? (
+                  <Text variant="caption" color={colors.dangerText} center style={styles.errorText}>
+                    {error}
+                  </Text>
+                ) : null}
                 <Button
                   title="Save Check-in"
                   onPress={handleSubmit}
@@ -207,5 +214,6 @@ const styles = StyleSheet.create({
   chipGrid: { flexDirection: "row", flexWrap: "wrap" },
   chipSpacing: { marginRight: spacing.sm, marginBottom: spacing.sm },
   textArea: { minHeight: 80, textAlignVertical: "top" },
+  errorText: { marginBottom: spacing.sm },
   actionBtn: { width: "100%", marginBottom: spacing.sm },
 });

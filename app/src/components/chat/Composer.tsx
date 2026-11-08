@@ -45,6 +45,7 @@ export function Composer({
           style={[styles.sendButton, canSend ? styles.sendButtonActive : styles.sendButtonDisabled]}
           onPress={handleSend}
           disabled={!canSend}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           activeOpacity={0.7}
         >
           <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   sendButtonActive: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primaryStrong,
   },
   sendButtonDisabled: {
     backgroundColor: colors.primarySoft,

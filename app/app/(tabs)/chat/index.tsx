@@ -84,7 +84,7 @@ export default function ChatListScreen(): React.JSX.Element {
         style={styles.deleteAction}
         onPress={() => handleDelete(item._id, item.title)}
       >
-        <Text variant="small" color={colors.surface} style={styles.deleteActionText}>
+        <Text variant="bodyBold" color={colors.surface}>
           Delete
         </Text>
       </TouchableOpacity>
@@ -214,12 +214,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   deleteAction: {
-    backgroundColor: colors.danger,
+    backgroundColor: colors.dangerStrong,
     justifyContent: "center",
     alignItems: "center",
     width: 85,
-  },
-  deleteActionText: {
-    fontWeight: "700",
   },
 });

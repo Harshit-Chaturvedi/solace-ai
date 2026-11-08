@@ -50,7 +50,7 @@ homeRouter.get("/", async (req: Request, res: Response): Promise<void> => {
       .toArray();
 
     const matchingMood = recentMoods.find(
-      (m) => formatLocalDate(m.createdAt, userTz) === todayDateStr,
+      (m) => m.source === "checkin" && formatLocalDate(m.createdAt, userTz) === todayDateStr,
     );
 
     if (matchingMood) {
@@ -89,22 +89,22 @@ homeRouter.get("/", async (req: Request, res: Response): Promise<void> => {
     },
   };
 
-  if (timeOfDay === "evening") {
-    suggestion = {
-      title: "Calm 4-6 breathing",
-      reason: "Wind down and release the tension from today",
-      action: {
-        type: "breathing",
-        params: { pattern: "calm", minutes: 3 },
-      },
-    };
-  } else if (todayMood && (todayMood.mood === "low" || todayMood.mood === "awful")) {
+  if (todayMood && (todayMood.mood === "low" || todayMood.mood === "awful")) {
     suggestion = {
       title: "Talk with Sol",
       reason: "Sol is here to listen and help you unpack your thoughts",
       action: {
         type: "chat",
         params: { initialPrompt: "I've been feeling low today..." },
+      },
+    };
+  } else if (timeOfDay === "evening") {
+    suggestion = {
+      title: "Calm 4-6 breathing",
+      reason: "Wind down and release the tension from today",
+      action: {
+        type: "breathing",
+        params: { pattern: "calm", minutes: 3 },
       },
     };
   }

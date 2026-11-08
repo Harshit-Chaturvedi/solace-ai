@@ -114,7 +114,7 @@ export default function ProfileTab(): React.JSX.Element {
             <Text variant="body" color={colors.ink}>
               Sol's Memory Settings
             </Text>
-            <Text variant="bodyBold" color={colors.primary}>
+            <Text variant="bodyBold" color={colors.primaryStrong}>
               ›
             </Text>
           </TouchableOpacity>
@@ -130,7 +130,7 @@ export default function ProfileTab(): React.JSX.Element {
             <Text variant="body" color={colors.ink}>
               Daily Reminders
             </Text>
-            <Text variant="bodyBold" color={colors.primary}>
+            <Text variant="bodyBold" color={colors.primaryStrong}>
               ›
             </Text>
           </TouchableOpacity>
@@ -146,13 +146,14 @@ export default function ProfileTab(): React.JSX.Element {
           </Text>
           <TouchableOpacity
             style={styles.helplineBtn}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             onPress={() => {
               haptics.tap();
               Linking.openURL("tel:14416");
             }}
             activeOpacity={0.7}
           >
-            <Text variant="small" color={colors.danger} style={styles.boldText}>
+            <Text variant="bodyBold" color={colors.dangerText}>
               Tele-MANAS Helpline (14416)
             </Text>
           </TouchableOpacity>
@@ -168,9 +169,10 @@ export default function ProfileTab(): React.JSX.Element {
           <TouchableOpacity
             onPress={handleDeleteAccount}
             style={styles.deleteLink}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             activeOpacity={0.7}
           >
-            <Text variant="small" color={colors.danger}>
+            <Text variant="small" color={colors.dangerText}>
               Delete Account & All Data
             </Text>
           </TouchableOpacity>
@@ -211,6 +213,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    minHeight: 48,
     paddingVertical: spacing.xs,
   },
   divider: {
@@ -223,10 +226,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   helplineBtn: {
-    paddingVertical: spacing.xs,
-  },
-  boldText: {
-    fontWeight: "700",
+    minHeight: 48,
+    justifyContent: "center",
   },
   actionButtons: {
     marginTop: spacing.md,
@@ -237,6 +238,8 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   deleteLink: {
-    padding: spacing.xs,
+    minHeight: 48,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

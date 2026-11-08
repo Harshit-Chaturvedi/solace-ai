@@ -39,9 +39,8 @@ export function SupportCard(): React.JSX.Element {
           activeOpacity={0.8}
         >
           <Text
-            variant="small"
+            variant="bodyBold"
             color={colors.surface}
-            style={styles.boldText}
             numberOfLines={1}
             adjustsFontSizeToFit
             minimumFontScale={0.85}
@@ -57,9 +56,8 @@ export function SupportCard(): React.JSX.Element {
           activeOpacity={0.8}
         >
           <Text
-            variant="small"
+            variant="bodyBold"
             color={colors.ink}
-            style={styles.boldText}
             numberOfLines={1}
             adjustsFontSizeToFit
             minimumFontScale={0.85}
@@ -99,7 +97,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   button: {
-    minHeight: 44,
+    minHeight: 48,
     paddingVertical: 12,
     paddingHorizontal: spacing.md,
     borderRadius: radius.md,
@@ -107,14 +105,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   primaryButton: {
-    backgroundColor: colors.danger,
+    backgroundColor: colors.dangerStrong,
   },
   secondaryButton: {
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.primarySoft,
-  },
-  boldText: {
-    fontWeight: "700",
   },
 });

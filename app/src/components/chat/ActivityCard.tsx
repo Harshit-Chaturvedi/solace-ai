@@ -69,9 +69,8 @@ export function ActivityCard({ suggestion }: ActivityCardProps): React.JSX.Eleme
         activeOpacity={0.8}
       >
         <Text
-          variant="small"
+          variant="bodyBold"
           color={colors.surface}
-          style={styles.actionText}
           numberOfLines={1}
           adjustsFontSizeToFit
           minimumFontScale={0.85}
@@ -103,16 +102,13 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   actionButton: {
-    minHeight: 40,
-    backgroundColor: colors.primary,
+    minHeight: 48,
+    backgroundColor: colors.primaryStrong,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     borderRadius: radius.md,
     alignSelf: "flex-start",
     justifyContent: "center",
     alignItems: "center",
-  },
-  actionText: {
-    fontWeight: "700",
   },
 });

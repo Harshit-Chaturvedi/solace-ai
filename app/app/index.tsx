@@ -55,7 +55,7 @@ export default function SplashScreen() {
         useAuthStore.setState({ status: "unauthenticated" });
         setMinTimeElapsed(true);
       }
-    }, 70000);
+    }, 25000);
 
     return () => {
       clearTimeout(timer);

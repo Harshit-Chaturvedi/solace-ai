@@ -117,13 +117,13 @@ export default function RemindersScreen(): React.JSX.Element {
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-        seconds: 5,
+        seconds: 30,
         repeats: false,
         channelId: "checkin",
       },
     });
     haptics.success();
-    Alert.alert("Test reminder scheduled", "Notification will arrive in 5 seconds!");
+    Alert.alert("Test reminder scheduled", "Notification will arrive in 30 seconds. Close the app now!");
   };
 
   return (
@@ -135,8 +135,8 @@ export default function RemindersScreen(): React.JSX.Element {
           </Svg>
         </TouchableOpacity>
         <Text variant="h3" color={colors.ink}>Reminders</Text>
-        <TouchableOpacity onPress={() => setIsCustomOpen(true)} style={styles.backBtn} activeOpacity={0.7}>
-          <Text variant="bodyBold" color={colors.primary}>+ Add</Text>
+        <TouchableOpacity onPress={() => setIsCustomOpen(true)} style={styles.addBtn} activeOpacity={0.7}>
+          <Text variant="bodyBold" color={colors.primaryStrong}>+ Add</Text>
         </TouchableOpacity>
       </View>
 
@@ -153,7 +153,7 @@ export default function RemindersScreen(): React.JSX.Element {
         ListHeaderComponent={
           hasPermission === false ? (
             <View style={styles.permissionBanner}>
-              <Text variant="caption" color={colors.danger} center>
+              <Text variant="caption" color={colors.dangerText} center>
                 Notifications are disabled. Enable them in your phone's Settings to receive reminders.
               </Text>
             </View>
@@ -175,20 +175,22 @@ export default function RemindersScreen(): React.JSX.Element {
                   <Text variant="bodyBold" color={colors.ink}>{preset.title} ({preset.time})</Text>
                   <Text variant="caption" color={colors.inkSoft}>{preset.body}</Text>
                 </View>
-                <Text variant="bodyBold" color={colors.primary}>+ Add</Text>
+                <View style={styles.addBtn}>
+                  <Text variant="bodyBold" color={colors.primaryStrong}>+ Add</Text>
+                </View>
               </TouchableOpacity>
             ))}
             <TouchableOpacity style={styles.testBtn} onPress={handleSendTest} activeOpacity={0.7}>
               <Text
                 variant="bodyBold"
-                color={colors.primary}
+                color={colors.primaryStrong}
                 center
                 numberOfLines={2}
                 adjustsFontSizeToFit
                 minimumFontScale={0.85}
                 maxFontSizeMultiplier={1.2}
               >
-                Send test notification (5s)
+                Send test notification (30s) — Close the app now
               </Text>
             </TouchableOpacity>
           </View>
@@ -203,7 +205,8 @@ export default function RemindersScreen(): React.JSX.Element {
 const styles = StyleSheet.create({
   screen: { backgroundColor: colors.bg },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.primarySoft },
-  backBtn: { width: 36, height: 36, justifyContent: "center" },
+  backBtn: { minWidth: 48, minHeight: 48, justifyContent: "center", alignItems: "center" },
+  addBtn: { minWidth: 48, minHeight: 48, justifyContent: "center", alignItems: "center" },
   permissionBanner: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.danger, padding: spacing.sm, borderRadius: radius.md, marginVertical: spacing.xs },
   list: { paddingVertical: spacing.sm },
   emptyContainer: { paddingVertical: spacing.lg },

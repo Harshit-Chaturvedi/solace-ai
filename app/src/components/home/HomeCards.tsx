@@ -61,7 +61,7 @@ export function CheckinCard({ todayMood }: { todayMood: HomeData["todayMood"] })
 export function AffirmationCard({ text }: { text: string }) {
   return (
     <Card style={styles.card}>
-      <Text variant="small" color={colors.peach} style={styles.badge}>
+      <Text variant="small" color={colors.peachText} style={styles.badge}>
         DAILY AFFIRMATION
       </Text>
       <Text variant="bodyBold" style={styles.affirmationText}>
@@ -81,6 +81,8 @@ export function SuggestionCard({
   const handleAction = () => {
     if (suggestion.action.type === "breathing") {
       router.push("/breathe");
+    } else if (suggestion.action.type === "chat") {
+      router.push({ pathname: "/chat/new", params: { mood: "low" } } as any); // expo-router route
     } else {
       router.push("/checkin");
     }
@@ -88,7 +90,7 @@ export function SuggestionCard({
 
   return (
     <Card style={styles.card}>
-      <Text variant="small" color={colors.mint} style={styles.badge}>
+      <Text variant="small" color={colors.mintText} style={styles.badge}>
         SOL SUGGESTS
       </Text>
       <Text variant="h3" style={styles.suggestionTitle}>
@@ -122,7 +124,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     paddingVertical: spacing.xs,
   },
-  faceBtn: { padding: spacing.xs },
+  faceBtn: {
+    minWidth: 48,
+    minHeight: 48,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: spacing.xs,
+  },
   solReply: { marginTop: spacing.sm, fontStyle: "italic" },
   badge: { marginBottom: spacing.xs, letterSpacing: 1 },
   affirmationText: { marginTop: spacing.xs, lineHeight: 24 },

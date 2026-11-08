@@ -39,11 +39,16 @@ export function ReminderCard({ item, onToggle, onDelete }: ReminderCardProps): R
           trackColor={{ false: colors.primarySoft, true: colors.primary }}
           thumbColor={colors.surface}
         />
-        <TouchableOpacity onPress={onDelete} style={styles.deleteBtn} activeOpacity={0.7}>
+        <TouchableOpacity
+          onPress={onDelete}
+          style={styles.deleteBtn}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
+        >
           <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
             <Path
               d="M3 6H21M19 6V20C19 21.1 18.1 22 17 22H7C5.9 22 5 21.1 5 20V6"
-              stroke={colors.danger}
+              stroke={colors.dangerText}
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -84,6 +89,9 @@ const styles = StyleSheet.create({
     marginLeft: spacing.sm,
   },
   deleteBtn: {
-    padding: spacing.xs,
+    minWidth: 48,
+    minHeight: 48,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

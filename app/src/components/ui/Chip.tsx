@@ -28,7 +28,7 @@ export function Chip({ label, selected = false, onPress, style }: ChipProps) {
     >
       <Text
         variant="small"
-        color={selected ? colors.primary : colors.inkSoft}
+        color={selected ? colors.primaryStrong : colors.inkSoft}
         numberOfLines={1}
         adjustsFontSizeToFit
         minimumFontScale={0.85}

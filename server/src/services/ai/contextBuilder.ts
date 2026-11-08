@@ -63,7 +63,7 @@ export async function buildChatContext(
     .replace("{{memories}}", memoriesStr)
     .replace(
       "{{conversationSummary}}",
-      conversation.summary || "Conversation just started",
+      conversation.summary || "Not available (only recent messages shown)",
     )
     .replace("{{dateTime}}", dateTimeStr);
 

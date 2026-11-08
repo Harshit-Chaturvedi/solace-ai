@@ -136,7 +136,7 @@ export default function LoginScreen() {
               Don&apos;t have an account?{" "}
             </Text>
             <Pressable onPress={() => router.push("/(auth)/signup")} hitSlop={8}>
-              <Text variant="bodyBold" color={colors.primary}>
+              <Text variant="bodyBold" color={colors.primaryStrong}>
                 Sign Up
               </Text>
             </Pressable>

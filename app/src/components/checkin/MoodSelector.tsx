@@ -57,7 +57,7 @@ export function MoodSelector({
             />
             <Text
               variant="caption"
-              color={selectedMood === m ? colors.primary : colors.inkSoft}
+              color={selectedMood === m ? colors.primaryStrong : colors.inkSoft}
             >
               {moodConfig[m].label}
             </Text>
@@ -81,9 +81,11 @@ const styles = StyleSheet.create({
   },
   moodChoice: {
     alignItems: "center",
+    justifyContent: "center",
     padding: spacing.xs,
     borderRadius: spacing.md,
     minWidth: 54,
+    minHeight: 48,
     marginVertical: spacing.xs,
   },
   moodChoiceSelected: { backgroundColor: colors.primarySoft },

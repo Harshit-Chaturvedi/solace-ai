@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
 
 const variantStyles = StyleSheet.create({
   primary: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primaryStrong,
   },
   secondary: {
     backgroundColor: colors.primarySoft,
