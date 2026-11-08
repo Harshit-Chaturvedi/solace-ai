@@ -2,19 +2,22 @@ import { app } from "./app.js";
 import { connectDB } from "./db.js";
 import { env } from "./config/env.js";
 
-async function main(): Promise<void> {
-  try {
-    await connectDB();
-  } catch {
-    console.warn("Starting server without Mongo connection for setup/health checks.");
-  }
+process.on("unhandledRejection", (reason) => {
+  console.error("Unhandled Rejection:", reason);
+});
 
-  app.listen(env.PORT, () => {
-    console.log(`Server listening on port ${env.PORT}`);
-  });
-}
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err);
+});
 
-main().catch((err) => {
-  console.error("Fatal startup error:", err);
-  process.exit(1);
+const server = app.listen(env.PORT, "0.0.0.0", () => {
+  console.log(`Server listening on port ${env.PORT}`);
+});
+
+server.keepAliveTimeout = 65000;
+server.headersTimeout = 66000;
+
+// Connect to MongoDB in background without blocking port binding or /ping
+connectDB().catch((err) => {
+  console.warn("Background Mongo connection attempt failed:", err);
 });

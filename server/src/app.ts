@@ -21,19 +21,36 @@ import { errorHandler } from "./middleware/error.js";
 export const app = express();
 app.set("trust proxy", 1);
 
+// Mount /ping first before ANY middleware (helmet, cors, parsers, logging)
+app.get("/ping", (_req, res) => res.json({ ok: true }));
+
 app.use(helmet());
 app.use(cors(env.CORS_ORIGIN ? { origin: env.CORS_ORIGIN } : undefined));
 app.use(express.json());
 app.use(morgan("dev"));
 
-app.get("/ping", (_req, res) => res.json({ ok: true }));
-
 const healthHandler = async (_req: Request, res: Response) => {
-  const isDbConnected = mongoose.connection.readyState === 1;
-  const aiStatus = await checkAiHealth();
+  const readyState = mongoose.connection.readyState;
+  let dbStatus = "disconnected";
+  if (readyState === 1) {
+    dbStatus = "connected";
+  } else if (readyState === 2) {
+    dbStatus = "connecting";
+  }
+
+  let aiStatus: "ok" | "failing" = "failing";
+  try {
+    aiStatus = await Promise.race([
+      checkAiHealth(),
+      new Promise<"failing">((resolve) => setTimeout(() => resolve("failing"), 3000)),
+    ]);
+  } catch {
+    aiStatus = "failing";
+  }
+
   res.json({
     ok: true,
-    db: isDbConnected ? "connected" : "disconnected",
+    db: dbStatus,
     ai: aiStatus,
   });
 };
