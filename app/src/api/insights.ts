@@ -6,6 +6,11 @@ export interface MoodSeriesPoint {
   score: number;
 }
 
+export interface EmotionCount {
+  emotion: string;
+  count: number;
+}
+
 export interface InsightsData {
   range: number;
   moodSeries: MoodSeriesPoint[];
@@ -18,6 +23,9 @@ export interface InsightsData {
     totalSessions: number;
     totalMinutes: number;
   };
+  emotionCounts?: EmotionCount[];
+  checkinCount?: number;
+  averageScore?: number | null;
 }
 
 export async function getInsights(range = 7): Promise<InsightsData> {

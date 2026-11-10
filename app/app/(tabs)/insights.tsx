@@ -1,25 +1,16 @@
 import React, { useState } from "react";
 import { View, StyleSheet, ScrollView, RefreshControl } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import Svg, { Circle, Line, Text as SvgText } from "react-native-svg";
-import { Screen } from "../../src/components/ui/Screen.js";
-import { Text } from "../../src/components/ui/Text.js";
-import { Card } from "../../src/components/ui/Card.js";
-import { EmptyState } from "../../src/components/ui/EmptyState.js";
-import { getInsights, MoodSeriesPoint } from "../../src/api/insights.js";
-import { colors } from "../../src/theme/colors.js";
-import { spacing } from "../../src/theme/spacing.js";
-
-const MOOD_COLOR_MAP: Record<string, string> = {
-  great: colors.mood.great,
-  good: colors.mood.good,
-  okay: colors.mood.okay,
-  low: colors.mood.low,
-  awful: colors.mood.awful,
-};
+import { useRouter } from "expo-router";
+import { Screen, Text, Card, Button, Chip } from "../../src/components/ui/index.js";
+import { SolMascot } from "../../src/components/Sol/index.js";
+import { MoodTrendChart } from "../../src/components/insights/MoodTrendChart.js";
+import { getInsights } from "../../src/api/insights.js";
+import { colors, spacing, radius } from "../../src/theme/index.js";
 
 export default function InsightsScreen(): React.JSX.Element {
-  const [range] = useState<7 | 30>(7);
+  const router = useRouter();
+  const [range, setRange] = useState<7 | 30>(7);
 
   const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ["insights", range],
@@ -31,6 +22,18 @@ export default function InsightsScreen(): React.JSX.Element {
   const longest = data?.streak?.longest ?? 0;
   const sessions = data?.activitySummary?.totalSessions ?? 0;
   const minutes = data?.activitySummary?.totalMinutes ?? 0;
+  const checkinCount = data?.checkinCount ?? moodSeries.length;
+  const emotionCounts = data?.emotionCounts || [];
+  const topEmotion = emotionCounts[0]?.emotion;
+
+  let solNoticeText = "";
+  if (checkinCount === 0) {
+    solNoticeText = `You haven't checked in over the past ${range} days yet. Sol is ready whenever you are.`;
+  } else if (checkinCount === 1) {
+    solNoticeText = `You checked in once in the last ${range} days${topEmotion ? `, feeling ${topEmotion}` : ""}. Every step forward counts.`;
+  } else {
+    solNoticeText = `You checked in ${checkinCount} times in the last ${range} days. Your most common feeling was ${topEmotion || "calm"}. Small steps count.`;
+  }
 
   return (
     <Screen style={styles.screen}>
@@ -49,6 +52,21 @@ export default function InsightsScreen(): React.JSX.Element {
           Your Journey
         </Text>
 
+        {/* 7 vs 30 Days Range Switch */}
+        <View style={styles.rangeRow}>
+          <Chip
+            label="Past 7 days"
+            selected={range === 7}
+            onPress={() => setRange(7)}
+          />
+          <Chip
+            label="Past 30 days"
+            selected={range === 30}
+            onPress={() => setRange(30)}
+          />
+        </View>
+
+        {/* Stats Row */}
         <View style={styles.statsRow}>
           <Card style={styles.statCard}>
             <Text variant="caption" color={colors.inkSoft}>
@@ -58,7 +76,7 @@ export default function InsightsScreen(): React.JSX.Element {
               {streak}
             </Text>
             <Text variant="caption" color={colors.inkSoft}>
-              Best: {longest} days
+              Best: {longest === 1 ? "1 day" : `${longest} days`}
             </Text>
           </Card>
 
@@ -75,48 +93,57 @@ export default function InsightsScreen(): React.JSX.Element {
           </Card>
         </View>
 
-        <Card style={styles.chartCard}>
-          <View style={styles.chartHeader}>
-            <Text variant="h3" color={colors.ink}>
-              Mood Trend (Past {range} Days)
+        {/* Empty State Call to Action if 0 check-ins */}
+        {checkinCount === 0 && !isLoading ? (
+          <Card style={styles.emptyCard}>
+            <SolMascot size={72} expression="calm" />
+            <Text variant="h3" color={colors.ink} style={styles.emptyTitle}>
+              No check-ins yet
             </Text>
-          </View>
-
-          {moodSeries.length === 0 && !isLoading ? (
-            <EmptyState
-              title="No check-ins yet"
-              description="Complete daily check-ins to unlock your emotional trends and insights."
+            <Text variant="body" color={colors.inkSoft} style={styles.emptySubtitle}>
+              Take a moment to check in with your heart and start seeing your trends.
+            </Text>
+            <Button
+              title="Do your first check-in"
+              onPress={() => router.push("/checkin")}
+              style={styles.emptyButton}
             />
-          ) : (
-            <View style={styles.chartContainer}>
-              <Svg width="100%" height={160} viewBox="0 0 320 160">
-                <Line x1="20" y1="30" x2="300" y2="30" stroke={colors.primarySoft} strokeWidth="1" />
-                <Line x1="20" y1="80" x2="300" y2="80" stroke={colors.primarySoft} strokeWidth="1" />
-                <Line x1="20" y1="130" x2="300" y2="130" stroke={colors.primarySoft} strokeWidth="1" />
+          </Card>
+        ) : null}
 
-                {moodSeries.map((point: MoodSeriesPoint, idx: number) => {
-                  const x = 30 + (idx * 260) / Math.max(moodSeries.length - 1, 1);
-                  const y = 140 - point.score * 24;
-                  const color = MOOD_COLOR_MAP[point.mood] || colors.primary;
+        {/* Mood Trend Chart */}
+        <MoodTrendChart range={range} moodSeries={moodSeries} />
 
-                  return (
-                    <React.Fragment key={point.date + idx}>
-                      <Circle cx={x} cy={y} r={7} fill={color} />
-                      <SvgText
-                        x={x}
-                        y={155}
-                        fontSize="10"
-                        fill={colors.inkSoft}
-                        textAnchor="middle"
-                      >
-                        {point.date.slice(5)}
-                      </SvgText>
-                    </React.Fragment>
-                  );
-                })}
-              </Svg>
+        {/* Top Feelings Card */}
+        {emotionCounts.length > 0 ? (
+          <Card style={styles.sectionCard}>
+            <Text variant="small" color={colors.peachText} style={styles.badge}>
+              TOP FEELINGS
+            </Text>
+            <View style={styles.feelingsRow}>
+              {emotionCounts.map((item) => (
+                <View key={item.emotion} style={styles.feelingPill}>
+                  <Text
+                    variant="small"
+                    color={colors.primaryStrong}
+                    style={styles.feelingPillText}
+                  >
+                    {item.emotion} ({item.count})
+                  </Text>
+                </View>
+              ))}
             </View>
-          )}
+          </Card>
+        ) : null}
+
+        {/* Sol Noticed Card */}
+        <Card style={styles.sectionCard}>
+          <Text variant="small" color={colors.mintText} style={styles.badge}>
+            SOL NOTICED
+          </Text>
+          <Text variant="body" color={colors.ink} style={styles.noticeBody}>
+            {solNoticeText}
+          </Text>
         </Card>
       </ScrollView>
     </Screen>
@@ -135,6 +162,10 @@ const styles = StyleSheet.create({
   headerTitle: {
     marginBottom: spacing.xs,
   },
+  rangeRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
   statsRow: {
     flexDirection: "row",
     gap: spacing.md,
@@ -144,14 +175,47 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: spacing.lg,
   },
-  chartCard: {
+  sectionCard: {
     padding: spacing.md,
   },
-  chartHeader: {
-    marginBottom: spacing.md,
+  badge: {
+    marginBottom: spacing.xs,
+    letterSpacing: 1,
+    flexShrink: 1,
   },
-  chartContainer: {
-    alignItems: "center",
+  noticeBody: {
+    lineHeight: 22,
+    flexShrink: 1,
+  },
+  feelingsRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.xs,
+    marginTop: spacing.xs,
+  },
+  feelingPill: {
+    backgroundColor: colors.primarySoft,
     paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.chip,
+  },
+  feelingPillText: {
+    flexShrink: 1,
+  },
+  emptyCard: {
+    alignItems: "center",
+    padding: spacing.lg,
+    gap: spacing.xs,
+  },
+  emptyTitle: {
+    marginTop: spacing.sm,
+    textAlign: "center",
+  },
+  emptySubtitle: {
+    textAlign: "center",
+    marginBottom: spacing.sm,
+  },
+  emptyButton: {
+    minHeight: 44,
   },
 });

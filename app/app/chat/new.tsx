@@ -16,6 +16,7 @@ export default function NewChatScreen(): React.JSX.Element {
     note?: string;
     firstMessage?: string;
     seed?: string;
+    initialPrompt?: string;
   }>();
 
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +24,7 @@ export default function NewChatScreen(): React.JSX.Element {
   const initChat = async () => {
     try {
       setError(null);
-      let seedText: string | undefined = params.seed;
+      let seedText: string | undefined = params.initialPrompt || params.seed;
       if (!seedText && params.mood) {
         seedText = `I felt ${params.mood}${params.note ? ` (${params.note})` : ""}`;
       }

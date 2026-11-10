@@ -20,14 +20,21 @@ export function CheckinCard({ todayMood }: { todayMood: HomeData["todayMood"] })
     return (
       <Card style={styles.card}>
         <View style={styles.cardHeader}>
-          <Text variant="h3">Today&apos;s Check-in</Text>
+          <Text variant="h3" style={styles.cardHeaderTitle}>
+            Today&apos;s Check-in
+          </Text>
           <Text variant="body">{moodEmojis[todayMood.mood] || "✨"}</Text>
         </View>
-        <Text variant="body" color={colors.inkSoft}>
+        <Text variant="body" color={colors.inkSoft} style={styles.cardBodyText}>
           You felt {todayMood.mood} today.
         </Text>
         {todayMood.solReply ? (
-          <Text variant="small" color={colors.primary} style={styles.solReply}>
+          <Text
+            variant="small"
+            color={colors.primary}
+            numberOfLines={4}
+            style={styles.solReply}
+          >
             Sol: &ldquo;{todayMood.solReply}&rdquo;
           </Text>
         ) : null}
@@ -117,8 +124,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: spacing.xs,
   },
-  cardTitle: { marginBottom: spacing.xs },
-  cardSubtitle: { marginBottom: spacing.md },
+  cardHeaderTitle: {
+    flex: 1,
+    flexShrink: 1,
+    marginRight: spacing.xs,
+  },
+  cardBodyText: {
+    flexShrink: 1,
+  },
+  cardTitle: { marginBottom: spacing.xs, flexShrink: 1 },
+  cardSubtitle: { marginBottom: spacing.md, flexShrink: 1 },
   facesRow: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -130,11 +145,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: spacing.xs,
+    flexShrink: 1,
   },
-  solReply: { marginTop: spacing.sm, fontStyle: "italic" },
-  badge: { marginBottom: spacing.xs, letterSpacing: 1 },
-  affirmationText: { marginTop: spacing.xs, lineHeight: 24 },
-  suggestionTitle: { marginBottom: spacing.xs },
-  suggestionReason: { marginBottom: spacing.md },
-  suggestionBtn: { alignSelf: "flex-start" },
+  solReply: { marginTop: spacing.sm, fontStyle: "italic", flexShrink: 1 },
+  badge: { marginBottom: spacing.xs, letterSpacing: 1, flexShrink: 1 },
+  affirmationText: { marginTop: spacing.xs, lineHeight: 24, flexShrink: 1 },
+  suggestionTitle: { marginBottom: spacing.xs, flexShrink: 1 },
+  suggestionReason: { marginBottom: spacing.md, flexShrink: 1 },
+  suggestionBtn: {
+    alignSelf: "flex-start",
+    minHeight: 44,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.base,
+  },
 });

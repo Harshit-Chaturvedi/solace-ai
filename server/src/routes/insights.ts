@@ -62,6 +62,30 @@ insightsRouter.get('/', async (req: Request, res: Response): Promise<void> => {
     activities.reduce((acc, a) => acc + (a.durationSeconds || 0), 0) / 60
   );
 
+  const emotionMap = new Map<string, number>();
+  let totalScore = 0;
+  for (const m of moods) {
+    const score = MOOD_SCORES[m.mood] || 3;
+    totalScore += score;
+    if (Array.isArray(m.emotions)) {
+      for (const e of m.emotions) {
+        if (typeof e === "string" && e.trim()) {
+          const norm = e.trim();
+          emotionMap.set(norm, (emotionMap.get(norm) || 0) + 1);
+        }
+      }
+    }
+  }
+
+  const emotionCounts = Array.from(emotionMap.entries())
+    .map(([emotion, count]) => ({ emotion, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 6);
+
+  const checkinCount = moods.length;
+  const averageScore =
+    checkinCount === 0 ? null : Number((totalScore / checkinCount).toFixed(1));
+
   res.json({
     range,
     moodSeries,
@@ -70,5 +94,8 @@ insightsRouter.get('/', async (req: Request, res: Response): Promise<void> => {
       totalSessions: activities.length,
       totalMinutes,
     },
+    emotionCounts,
+    checkinCount,
+    averageScore,
   });
 });

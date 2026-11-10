@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import { Screen, Text, Card, Skeleton } from "../../src/components/ui/index.js";
+import { Screen, Text, Card, Skeleton, Button } from "../../src/components/ui/index.js";
 import { SolMascot, type SolExpression } from "../../src/components/Sol/index.js";
 import { colors, spacing } from "../../src/theme/index.js";
 import { getHomeData } from "../../src/api/home.js";
@@ -25,7 +25,7 @@ export default function HomeScreen() {
     router.push("/checkin");
   };
 
-  const { data, isLoading, refetch, isRefetching } = useQuery({
+  const { data, isLoading, isError, refetch, isRefetching } = useQuery({
     queryKey: ["homeData"],
     queryFn: getHomeData,
   });
@@ -100,26 +100,44 @@ export default function HomeScreen() {
               <AffirmationCard text={data.affirmation} />
               <SuggestionCard suggestion={data.suggestion} />
 
-              {/* Quick Actions Row */}
-              <View style={styles.quickActionsContainer}>
-                <Text variant="small" color={colors.inkSoft} style={styles.quickActionsLabel}>
-                  QUICK RITUALS
-                </Text>
-                <View style={styles.quickActionsRow}>
-                  {data.quickActions.map((qa) => (
-                    <Pressable
-                      key={qa.id}
-                      onPress={() => router.push(qa.route as never)}
-                      style={styles.quickActionPill}
-                    >
-                      <Text variant="small" color={colors.ink}>
-                        {qa.title}
-                      </Text>
-                    </Pressable>
-                  ))}
+                <View style={styles.quickActionsContainer}>
+                  <Text variant="small" color={colors.inkSoft} style={styles.quickActionsLabel}>
+                    QUICK RITUALS
+                  </Text>
+                  <View style={styles.quickActionsRow}>
+                    {data.quickActions.map((qa) => (
+                      <Pressable
+                        key={qa.id}
+                        onPress={() => router.push(qa.route as never)}
+                        style={styles.quickActionPill}
+                        accessibilityRole="button"
+                        accessibilityLabel={qa.title}
+                      >
+                        <Text
+                          variant="small"
+                          color={colors.ink}
+                          numberOfLines={1}
+                          adjustsFontSizeToFit
+                          minimumFontScale={0.85}
+                          style={styles.quickActionText}
+                        >
+                          {qa.title}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
                 </View>
-              </View>
             </View>
+          ) : isError ? (
+            <Card style={styles.errorCard}>
+              <Text variant="h3" color={colors.dangerText} style={styles.errorTitle}>
+                Couldn&apos;t load Sol right now
+              </Text>
+              <Text variant="body" color={colors.inkSoft} style={styles.errorSubtitle}>
+                Check your connection or tap below to refresh.
+              </Text>
+              <Button title="Try Again" variant="secondary" onPress={() => refetch()} />
+            </Card>
           ) : null}
         </View>
       </ScrollView>
@@ -148,9 +166,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
     borderRadius: spacing.xl,
+    minHeight: 32,
+    flexShrink: 1,
   },
   streakText: {
     marginLeft: spacing.xs,
+    flexShrink: 1,
   },
   greetingRow: {
     flexDirection: "row",
@@ -160,9 +181,11 @@ const styles = StyleSheet.create({
   greetingTextContainer: {
     flex: 1,
     paddingRight: spacing.sm,
+    flexShrink: 1,
   },
   greeting: {
     marginBottom: spacing.xs,
+    flexShrink: 1,
   },
   body: {
     paddingHorizontal: spacing.screenPadding,
@@ -189,7 +212,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.sm,
     borderRadius: spacing.xl,
+    minHeight: 40,
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: spacing.sm,
     marginBottom: spacing.sm,
+  },
+  quickActionText: {
+    flexShrink: 1,
+  },
+  errorCard: {
+    padding: spacing.lg,
+    alignItems: "center",
+    gap: spacing.xs,
+  },
+  errorTitle: {
+    textAlign: "center",
+    flexShrink: 1,
+  },
+  errorSubtitle: {
+    textAlign: "center",
+    marginBottom: spacing.sm,
+    flexShrink: 1,
   },
 });
