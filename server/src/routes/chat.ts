@@ -22,6 +22,49 @@ const postMessageSchema = z.object({
   content: z.string().trim().min(1, "Message content is required"),
 });
 
+export function buildGreeting(
+  name: string,
+  seed?: string,
+): { greeting: string; title: string } {
+  const trimmed = seed?.trim();
+  if (!trimmed) {
+    return {
+      greeting: `Hi ${name}, I'm here. How is your heart doing right now?`,
+      title: "New Conversation",
+    };
+  }
+
+  const moodMatch = trimmed.match(/^I felt (\w+)/i);
+  if (moodMatch) {
+    const mood = moodMatch[1];
+    return {
+      greeting: `Hi ${name}. You checked in feeling ${mood} today. Want to tell me what's behind it?`,
+      title: `Check-in: feeling ${mood}`,
+    };
+  }
+
+  if (/reflect/i.test(trimmed)) {
+    return {
+      greeting: `Hi ${name}. Let's look back on your day together. What stood out to you most?`,
+      title: "Reflecting on my day",
+    };
+  }
+
+  if (/plan/i.test(trimmed)) {
+    return {
+      greeting: `Hi ${name}. Let's shape a calm day together. What's one thing you'd like to feel good about by tonight?`,
+      title: "Planning a calm day",
+    };
+  }
+
+  const fallbackTitle =
+    trimmed.length > 30 ? `${trimmed.slice(0, 27)}...` : trimmed;
+  return {
+    greeting: `Hi ${name}. I'm here with you. What's on your mind?`,
+    title: fallbackTitle,
+  };
+}
+
 chatRouter.post(
   "/",
   validateBody(createConvSchema),
@@ -34,18 +77,14 @@ chatRouter.post(
 
     const { firstMessage, seed } = req.body;
     const initialText = seed || firstMessage;
+    const { greeting: greetingText, title } = buildGreeting(user.name, initialText);
 
     const conversation = await Conversation.create({
       userId: new mongoose.Types.ObjectId(req.userId),
-      title: initialText ? (initialText.length > 30 ? `${initialText.slice(0, 27)}...` : initialText) : "New Conversation",
+      title,
       lastMessageAt: new Date(),
       messageCount: 0,
     });
-
-    let greetingText = `Hi ${user.name}, I'm here. How is your heart doing right now?`;
-    if (initialText) {
-      greetingText = `Hi ${user.name}, I see you'd like to talk about "${initialText}". I'm right here with you. How are you feeling about it?`;
-    }
 
     const initialAssistantMsg = await Message.create({
       conversationId: conversation._id,
